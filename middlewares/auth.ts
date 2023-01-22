@@ -126,8 +126,15 @@ export const authenticateLoginCredentials = async (_req: Request, _res: Response
 }
 
 export const validateSignUpCredentials = async (_req: Request, _res: Response, next: NextFunction) => {
-  if (!_req.body && !_req.body.username && !_req.body.password) {
-    _res.sendStatus(400).send("Required details missing!");
+  if (!_req.body) {
+    _res.status(400);
+    _res.send("Malformed Request!");
+    return;
+  }
+
+  if(!_req.body.username || !_req.body.password || !_req.body.email || !_req.body.gender) {
+    _res.status(400);
+    _res.send("Required details missing!");
     return;
   }
 
@@ -144,11 +151,12 @@ export const validateSignUpCredentials = async (_req: Request, _res: Response, n
       friends: [],
       gender: _req.body.gender,
     }
-    _res.locals.potentialValidatedUserDetails = potentialUser;
+    _res.locals.validatedPotentialUserDetails = potentialUser;
     next();
     return;  
   } 
-  _res.status(401).send("One or more details incorrect or missing!");
+  _res.status(401);
+  _res.send("One or more details incorrect or missing!");
   return;
 }
 

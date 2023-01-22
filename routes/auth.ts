@@ -34,7 +34,7 @@ authRouter.post('/login', rejectInValidLoginCredentials, authenticateLoginCreden
 
 authRouter.post('/signup', validateSignUpCredentials, async (_req, _res, next) => {
   try {
-    const result = await storeUser(_res.locals.potentialValidatedUserDetails);
+    const result = await storeUser(_res.locals.validatedPotentialUserDetails);
     if (result && result.$response.httpResponse.statusCode === 200) {
       _res.redirect('/');
       return;
