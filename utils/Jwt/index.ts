@@ -4,12 +4,6 @@ import { JwtTokens } from "./types";
 import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from "./contants";
 import { User } from "../../models/types";
 
-declare module "jsonwebtoken" {
-  export interface AccessTokenJwtPayload extends jwt.JwtPayload {
-    username: string;
-  }
-}
-
 export const generateJwtToken = async (user: User): Promise<JwtTokens> => {
   const accessToken = createAccessToken(user.username);
   const refreshToken = createRefreshToken(user.username);
@@ -27,7 +21,7 @@ export const validateAccessToken = async (accessToken: string): Promise<{ expire
     const decoded = <AccessTokenJwtPayload>jwt.verify(accessToken, JWT_SECRET as string);
     return { decoded: decoded, expired: false };
   } catch (err: any) {
-    if (err.name || err.name === "TokenExpiredError") {
+    if (err.name && err.name === "TokenExpiredError") {
       return { expired: true, decoded: null};
     } else {
       throw err;
