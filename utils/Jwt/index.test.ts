@@ -6,7 +6,6 @@ import { User } from "../../models/types";
 jest.mock("../../models/session/sessions");
 
 describe('JWT Utils Test Suite', () => {
-
   describe('generateJwtToken', () => {
     it('should return access and refresh token', async () => {
       jest.spyOn(SessionsModel, 'storeSession').mockImplementation(jest.fn());
@@ -48,6 +47,10 @@ describe('JWT Utils Test Suite', () => {
   })
 
   describe('validateAccessToken', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
     it('should return decoded jwt data when jwt is successfully verified', async () => {
       const mockAccessToken = JwtUtils.createAccessToken('mockUsername');
   
@@ -83,7 +86,98 @@ describe('JWT Utils Test Suite', () => {
     })  
   })
 
-  describe('validateRefreshToken', () => {});
+  describe('validateRefreshToken', () => {
+    it('should call verify function', async () => {
+      const mockVerify = jest.fn().mockImplementation(() => {throw "random error"});
+      jest.spyOn(jwt, 'verify').mockImplementation(mockVerify);
+      
+      await JwtUtils.validateRefreshToken("mockRefreshToken", "mockUsername");
+      
+      expect(mockVerify).toHaveBeenCalled();
+      expect(mockVerify).toHaveBeenCalledWith("mockRefreshToken", expect.anything());
+    });
+
+    it('should call getSession when refreshToken verification is successful', async () => {
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {return "mock"});
+      const mockGetSession = jest.fn().mockRejectedValue(new Error('failed!'));
+      jest.spyOn(SessionsModel, 'getSession').mockImplementation(mockGetSession);
+
+      await JwtUtils.validateRefreshToken("mockRefreshToken", "mockUsername");
+
+      expect(mockGetSession).toHaveBeenCalled();
+      expect(mockGetSession).toHaveBeenCalledWith("mockRefreshToken");
+    });
+
+    it("should return true when valid refresh token is provided that is also stored in sessions", async () => {
+      const mockResponse: any = {};
+      const mockRefreshToken = JwtUtils.createRefreshToken("mockUsername");
+      jest.spyOn(SessionsModel, 'getSession').mockResolvedValue({
+        $response: mockResponse,
+        Item: {
+          sessionId: mockRefreshToken,
+          username: "mockUsername",
+        }
+      });
+
+      const result = await JwtUtils.validateRefreshToken(mockRefreshToken, "mockUsername");
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false when in-valid refresh token is provided", async () => {
+      const result = await JwtUtils.validateRefreshToken("invalidRefreshToken", "mockUsername");
+      expect(result).toBe(false);
+    });
+
+    it("should return false when valid refresh token is provided but is not stored in sessions", async () => {
+      const mockResponse: any = {};
+      const mockRefreshToken = JwtUtils.createRefreshToken("mockUsername");
+      jest.spyOn(SessionsModel, 'getSession').mockResolvedValue({
+        $response: mockResponse,
+        Item: {
+          sessionId: "differentRefreshToken",
+          username: "mockUsername",
+        }
+      });
+
+      const result = await JwtUtils.validateRefreshToken(mockRefreshToken, "mockUsername");
+      expect(result).toBe(false);
+    });
+
+    it('should return false when getSession throws error', async () => {
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {return "mock"});
+      const mockGetSession = jest.fn().mockImplementation(() => new Error('failed!'));
+      jest.spyOn(SessionsModel, 'getSession').mockImplementation(mockGetSession);
+
+      const result = await JwtUtils.validateRefreshToken("mockRefreshToken", "mockUsername");
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when getSession rejects', async () => {
+      const mockResponse: any = {};
+      const mockRefreshToken = JwtUtils.createRefreshToken("mockUsername");
+      jest.spyOn(SessionsModel, 'getSession').mockRejectedValue({
+        $response: mockResponse,
+        Item: {
+          sessionId: mockRefreshToken,
+          username: "mockUsername",
+        }
+      });
+
+      const result = await JwtUtils.validateRefreshToken(mockRefreshToken, "mockUsername");
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when verify throws error', async () => {
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {new Error('failed!')});
+
+      const result = await JwtUtils.validateRefreshToken("mockRefreshToken", "mockUsername");
+
+      expect(result).toBe(false);
+    });
+  });
 
   describe('createAccessToken', () => {});
 

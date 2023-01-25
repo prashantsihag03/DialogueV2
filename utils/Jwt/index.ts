@@ -33,7 +33,7 @@ export const validateRefreshToken = async (refreshToken: string, username: strin
   try {
     jwt.verify(refreshToken, JWT_SECRET as string);
     const session = await getSession(refreshToken);
-    if (session.Item && session.Item.refreshToken && 
+    if (session.Item && session.Item.sessionId && 
       session.Item.sessionId === refreshToken && session.Item.username === username) {
       return true;
     }
