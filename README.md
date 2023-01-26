@@ -1,4 +1,21 @@
-# Steps to setup and execute the project locally:
+# Introduction
+
+YourChatsV2, as the name suggests, is a second version for YourChats which was first created with an aim to interact with some technologies in order to gain experience and build up some skills.
+
+The project is a chat application with no aim to make it available commercially and is built just for the purpose of getting hands on experience with some of the technologies used.
+
+<u>Whats different in version 2</u></br>
+In version 1, almost all code was written in vanilla Javascript with little to no emphasis on code and project's internal structure. The Frontend for version 1 was also built using vanilla javascript and immature when it comes to readability, and maintainibility.
+
+In version 2, I'm aiming to
+
+- use Typescript along with some refactoring to increase readability and maintainability,
+- utilise CI/CD to deploy and check for security vulnerability,
+- use dockerised DynamoDB for local development,
+- generate C4 diagraming models for better transparency to the system,
+- move frontend to more sophisticated frameworks and tools such as React with Typescript, Redux, and other supplementary React ecosystem tools.
+
+# Development Setup:
 
 - Clone Repository
 - Setup Database by following instructions provided below.
@@ -7,27 +24,37 @@
 - Run
   > npm install; npm run start;
 
-# Database Setup
+<br/>
 
-Two tables are necessary
+# Development Database Setup
 
-1. yourchats_users
-2. yourchats_sessions
-
-## Set AWS Dummy credentials
+<details>
+<summary><u>Setup Docker</u></summary>
 
 - Download and Install the Dockerized version of DynamoDBDynamodb local from AWS official resource.
   > https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html
 - Download and Install the AWS CLI
   > https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
-* Add following variables to your terminal. The credentials could be anything. They just need to satisfy validation and wont be used for local dynamodb.
+</details>
+
+<details>
+<summary><u>Set AWS Dummy credentials</u></summary>
+
+- Add following variables to your terminal. The credentials could be anything. They just need to satisfy validation and wont be used for local dynamodb.
 
   > export AWS_ACCESS_KEY_ID=223344
 
   > export AWS_SECRET_ACCESS_KEY=wJalrXUtTHISI/DYNAMODB/bPxRfiCYEXAMPLEKEY
 
-### Create Table if not exists already
+</details>
+
+<details>
+<summary><u>Create Tables</u></summary>
+Two tables are necessary
+
+1. yourchats_users
+2. yourchats_sessions
 
 - Create table using following cmds from your terminal. Region here is also for sake of validation and could be any region.
 
@@ -49,11 +76,18 @@ Two tables are necessary
 > --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
 > --endpoint-url http://localhost:8000 --region=us-east-1
 
-### Check Database Table descriptions
+</details>
+
+<details>
+<summary><u>Check Database Table descriptions</u></summary>
 
 > aws dynamodb describe-table --table-name yourchats_sessions --endpoint-url http://localhost:8000 --region=us-east-1
 
 > aws dynamodb describe-table --table-name yourchats_users --endpoint-url http://localhost:8000 --region=us-east-1
+
+</details>
+
+<br/>
 
 # Run tests locally
 
