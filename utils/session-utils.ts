@@ -1,6 +1,6 @@
 import { type Request } from 'express'
 import { SESSION_COOKIE_NAME } from '../constants'
-import { type JwtTokens } from './Jwt/types'
+import { type JwtTokens } from './jwt-utils/types'
 
 export const extractTokens = (_req: Request): JwtTokens | null => {
   if (_req.cookies?.[`${SESSION_COOKIE_NAME}`]?.accessToken != null && _req.cookies[`${SESSION_COOKIE_NAME}`].refreshToken != null) {

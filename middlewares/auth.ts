@@ -2,10 +2,10 @@ import bcrypt from 'bcrypt'
 import { type NextFunction, type Request, type Response } from 'express'
 import { type User } from '../models/types'
 import { getUser } from '../models/user/users'
-import { getValidatedCredentials } from '../utils/AuthUtils'
-import { validateAccessToken } from '../utils/Jwt'
-import { extractTokens } from '../utils/SessionUtils'
-import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation'
+import { getValidatedCredentials } from '../utils/auth-utils'
+import { validateAccessToken } from '../utils/jwt-utils'
+import { extractTokens } from '../utils/session-utils'
+import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils'
 
 /**
  * Extracts tokens from the http request, validates them, and adds following token information

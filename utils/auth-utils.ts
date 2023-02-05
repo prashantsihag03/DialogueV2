@@ -1,5 +1,5 @@
 import { type Response } from 'express'
-import { isValidPassword, isValidUsername } from './validation'
+import { isValidPassword, isValidUsername } from './validation-utils'
 
 export interface ValidatedCredentials {
   username: string

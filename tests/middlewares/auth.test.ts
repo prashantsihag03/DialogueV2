@@ -1,9 +1,9 @@
-import * as Jwt from '../../utils/Jwt'
-import * as SessionUtils from '../../utils/SessionUtils'
-import * as AuthUtils from '../../utils/AuthUtils'
+import * as Jwt from '../../utils/jwt-utils'
+import * as SessionUtils from '../../utils/session-utils'
+import * as AuthUtils from '../../utils/auth-utils'
 import * as UserModel from '../../models/user/users'
 import * as bcrypt from 'bcrypt'
-import * as ValidationUtils from '../../utils/validation'
+import * as ValidationUtils from '../../utils/validation-utils'
 import {
   authenticateLoginCredentials,
   redirectUnAuthenticated,

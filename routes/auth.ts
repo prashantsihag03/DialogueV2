@@ -4,7 +4,7 @@ import { SESSION_COOKIE_NAME } from '../constants'
 import { authenticateLoginCredentials, rejectInValidLoginCredentials, validateSignUpCredentials, validateTokens } from '../middlewares/auth'
 import { deleteSession } from '../models/session/sessions'
 import { storeUser } from '../models/user/users'
-import { generateJwtToken } from '../utils/Jwt'
+import { generateJwtToken } from '../utils/jwt-utils'
 
 const authRouter = Router()
 

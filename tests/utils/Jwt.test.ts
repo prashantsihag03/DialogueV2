@@ -1,8 +1,8 @@
-import * as JwtUtils from '../../utils/Jwt'
+import * as JwtUtils from '../../utils/jwt-utils'
 import jwt, { TokenExpiredError } from 'jsonwebtoken'
 import * as SessionsModel from '../../models/session/sessions'
 import { type User } from '../../models/types'
-import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from '../../utils/Jwt/contants'
+import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from '../../utils/jwt-utils/contants'
 
 jest.mock('../../models/session/sessions')
 

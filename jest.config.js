@@ -5,5 +5,6 @@ module.exports = {
   coveragePathIgnorePatterns: ['/node_modules/', '/build/'],
   restoreMocks: true,
   clearMocks: true,
-  resetMocks: true
+  resetMocks: true,
+  verbose: true
 }
