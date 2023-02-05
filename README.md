@@ -1,19 +1,31 @@
 # Introduction
 
-YourChatsV2, as the name suggests, is a second version for YourChats which was first created with an aim to interact with some technologies in order to gain experience and build up some skills.
+YourChatsV2, as the name suggests, is a second version for YourChats which was first created with an aim to acquire new skills and gain hands-on experience. Second version rebuilds the project from scratch to improve upon the code base and use newly acquired skills such as Typescript, testing, and many more.
 
-The project is a chat application with no aim to make it available commercially and is built just for the purpose of getting hands on experience with some of the technologies used.
+_The project is a chat application with no aim to make it available commercially and is built just for the purpose of getting hands on experience with some of the technologies used._
 
-<u>Whats different in version 2</u></br>
-In version 1, almost all code was written in vanilla Javascript with little to no emphasis on code and project's internal structure. The Frontend for version 1 was also built using vanilla javascript and immature when it comes to readability, and maintainibility.
+<details>
+<summary><b>Whats wrong with Version 1</b></summary>
 
+- In version 1, almost all code was written in vanilla Javascript with little to no emphasis on code's and project's internal structure.
+- The Frontend for version 1 was also built using vanilla javascript and was considerably difficult to read, and maintain.
+- The backend as well as frontend for version 1 had no test coverage at all.
+- All these and many more negatives from version 1 will be worked upon in version 2.
+
+</details>
+
+<details>
+  <summary><b>Improvements in Version 2</b></summary>
 In version 2, I'm aiming to
 
 - use Typescript along with some refactoring to increase readability and maintainability,
 - utilise CI/CD to deploy and check for security vulnerability,
-- use dockerised DynamoDB for local development,
+- use dockerised DynamoDB for local development, (This will help primarily for testing and reduce manual cleanup efforts on actual DynamoDB).
 - generate C4 diagraming models for better transparency to the system,
 - move frontend to more sophisticated frameworks and tools such as React with Typescript, Redux, and other supplementary React ecosystem tools.
+- introduce and increase test coverage on the overall system.
+
+</details></br>
 
 # Development Setup:
 
