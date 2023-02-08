@@ -1,7 +1,7 @@
 {
   "name": "yourchatsv2",
   "version": "1.0.0",
-  "description": "",
+  "description": "Second version to YourChats Chat application primarliy developed to gain hands-on experience with certain tools and technologies.",
   "main": "index.ts",
   "scripts": {
     "test": "jest",

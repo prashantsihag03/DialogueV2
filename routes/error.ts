@@ -1,10 +1,8 @@
-import { type Errback, type NextFunction, type Request, type Response, Router } from 'express'
+import { Router } from 'express'
+import { GenericErrorHandler } from '../middlewares/error'
 
 const errorRouter = Router()
 
-errorRouter.use((err: Errback, _req: Request, _res: Response, next: NextFunction) => {
-  console.log('Error handler intercepted following error: {}', err)
-  _res.sendStatus(500)
-})
+errorRouter.use(GenericErrorHandler)
 
 export default errorRouter
