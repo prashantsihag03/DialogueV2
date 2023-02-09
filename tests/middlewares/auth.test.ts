@@ -1,19 +1,14 @@
 import * as Jwt from '../../utils/jwt-utils'
 import * as SessionUtils from '../../utils/session-utils'
-import * as AuthUtils from '../../utils/auth-utils'
-import * as UserModel from '../../models/user/users'
-import * as bcrypt from 'bcrypt'
-import * as ValidationUtils from '../../utils/validation-utils'
+import * as SessionModel from '../../models/session/sessions'
 import {
-  authenticateLoginCredentials,
+  logout,
   redirectUnAuthenticated,
-  rejectInValidLoginCredentials,
+  register,
   rejectUnAuthenticated,
-  validateSignUpCredentials,
   validateTokens
 } from '../../middlewares/auth'
-
-jest.mock('bcrypt')
+import { SESSION_COOKIE_NAME } from '../../constants'
 
 describe('Auth Middleware Test Suite', () => {
   describe('validateTokens', () => {
@@ -333,523 +328,143 @@ describe('Auth Middleware Test Suite', () => {
     })
   })
 
-  describe('rejectInValidLoginCredentials', () => {
-    it('should send 400 status code when request doesnt not contain body', () => {
-      const mockSendStatus = jest.fn()
+  describe('logout', () => {
+    describe('should clearCookie and redirect', () => {
+      it('when refreshToken exists', async () => {
+        const mockClearCookie = jest.fn()
+        const mockRedirect = jest.fn()
+        jest.spyOn(SessionModel, 'deleteSession')
+          .mockImplementation(jest.fn())
+
+        const mockReq: any = {}
+        const mockNext = jest.fn()
+        const mockRes: any = {
+          locals: {
+            sessionTokens: {
+              refreshToken: 'mockRefreshToken'
+            }
+          },
+          clearCookie: mockClearCookie,
+          redirect: mockRedirect
+        }
+
+        await logout(mockReq, mockRes, mockNext)
+
+        expect(mockRedirect).toHaveBeenCalled()
+        expect(mockRedirect).toHaveBeenCalledWith('/')
+        expect(mockClearCookie).toHaveBeenCalled()
+        expect(mockClearCookie).toHaveBeenCalledWith(SESSION_COOKIE_NAME)
+      })
+
+      it('when refreshToken does not exists', async () => {
+        const mockClearCookie = jest.fn()
+        const mockRedirect = jest.fn()
+        jest.spyOn(SessionModel, 'deleteSession')
+          .mockImplementation(jest.fn())
+
+        const mockReq: any = {}
+        const mockNext = jest.fn()
+        const mockRes: any = {
+          locals: {},
+          clearCookie: mockClearCookie,
+          redirect: mockRedirect
+        }
+
+        await logout(mockReq, mockRes, mockNext)
+
+        expect(mockRedirect).toHaveBeenCalled()
+        expect(mockRedirect).toHaveBeenCalledWith('/')
+        expect(mockClearCookie).toHaveBeenCalled()
+        expect(mockClearCookie).toHaveBeenCalledWith(SESSION_COOKIE_NAME)
+      })
+    })
+
+    it('should call deleteSession if refreshToken exists', async () => {
+      const spiedDeleteSession = jest.spyOn(SessionModel, 'deleteSession')
+      const mockDeleteSession = jest.fn().mockResolvedValue(null)
+      spiedDeleteSession.mockImplementation(mockDeleteSession)
+
       const mockReq: any = {}
       const mockNext = jest.fn()
       const mockRes: any = {
-        sendStatus: mockSendStatus
+        locals: {
+          sessionTokens: {
+            refreshToken: 'mockRefreshToken'
+          }
+        },
+        clearCookie: () => {},
+        redirect: () => {}
       }
 
-      rejectInValidLoginCredentials(mockReq, mockRes, mockNext)
+      await logout(mockReq, mockRes, mockNext)
 
-      expect(mockSendStatus).toHaveBeenCalledWith(400)
+      expect(mockDeleteSession).toHaveBeenCalled()
+      expect(mockDeleteSession).toHaveBeenCalledWith('mockRefreshToken')
     })
 
-    it('should send 400 status code when request body does not contain username and password', () => {
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {
-        body: {}
-      }
+    it('should send status 500 with correct message when error occurs', async () => {
+      const mockStatus = jest.fn()
+      const mockSend = jest.fn()
+      jest.spyOn(SessionModel, 'deleteSession')
+        .mockImplementation(() => { throw new Error('MockDeleteSession throws error') })
+
+      const mockReq: any = {}
       const mockNext = jest.fn()
       const mockRes: any = {
-        sendStatus: mockSendStatus
+        locals: {
+          sessionTokens: {
+            refreshToken: 'mockRefreshToken'
+          }
+        },
+        clearCookie: () => {},
+        redirect: () => {},
+        status: mockStatus,
+        send: mockSend
       }
 
-      rejectInValidLoginCredentials(mockReq, mockRes, mockNext)
+      await logout(mockReq, mockRes, mockNext)
 
-      expect(mockSendStatus).toHaveBeenCalledWith(400)
-    })
-
-    it('should send 401 status code when request body contains invalid credentials', () => {
-      const spiedGetValidCredentials = jest.spyOn(AuthUtils, 'getValidatedCredentials')
-      const mockGetValidCredentials = jest.fn().mockReturnValue(null)
-      spiedGetValidCredentials.mockImplementation(mockGetValidCredentials)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {
-        body: {
-          username: 'anything',
-          password: 'anything'
-        }
-      }
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        sendStatus: mockSendStatus
-      }
-
-      rejectInValidLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-    })
-
-    it('Should assign validatedCredentials to response.locals and call next function when request body contains valid credentials', () => {
-      const spiedGetValidCredentials = jest.spyOn(AuthUtils, 'getValidatedCredentials')
-      const mockGetValidCredentials = jest.fn().mockReturnValue({
-        username: 'mockValidatedUsername',
-        password: 'mockValidatedPassword'
-      })
-      spiedGetValidCredentials.mockImplementation(mockGetValidCredentials)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {
-        body: {
-          username: 'anything',
-          password: 'anything'
-        }
-      }
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {},
-        sendStatus: mockSendStatus
-      }
-
-      rejectInValidLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).not.toHaveBeenCalled()
-      expect(mockNext).toHaveBeenCalledTimes(1)
-      expect(mockRes.locals).toHaveProperty('validatedCredentials')
-      expect(mockRes.locals.validatedCredentials).toHaveProperty('username', 'mockValidatedUsername')
-      expect(mockRes.locals.validatedCredentials).toHaveProperty('password', 'mockValidatedPassword')
+      expect(mockStatus).toHaveBeenCalled()
+      expect(mockStatus).toHaveBeenCalledWith(500)
+      expect(mockSend).toHaveBeenCalled()
+      expect(mockSend).toHaveBeenCalledWith('Something went wrong. Please try again!')
     })
   })
 
-  describe('authenticateLoginCredentials', () => {
-    it('should send 401 status when response.locals.validated is NOT already set', async () => {
-      const mockSendStatus = jest.fn()
+  describe('register', () => {
+    it('should redirect to home page when user is authenticated', () => {
+      const mockRedirect = jest.fn()
+      const mockReq: any = {}
+      const mockNext = jest.fn()
+      const mockRes: any = {
+        locals: {
+          authenticated: true
+        },
+        redirect: mockRedirect
+      }
+
+      register(mockReq, mockRes, mockNext)
+
+      expect(mockRedirect).toHaveBeenCalled()
+      expect(mockRedirect).toHaveBeenCalledWith('/home')
+    })
+
+    it('should send register page when user is not authenticated', () => {
+      const mockSendFile = jest.fn()
+      const mockRedirect = jest.fn()
       const mockReq: any = {}
       const mockNext = jest.fn()
       const mockRes: any = {
         locals: {},
-        sendStatus: mockSendStatus
+        redirect: mockRedirect,
+        sendFile: mockSendFile
       }
 
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-    })
-
-    it('should send 401 status when response.locals.validated.username is NOT already set', async () => {
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {}
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-    })
-
-    it('should call getUser when response.locals.validated.username is set', async () => {
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue(null)
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockGetUser).toHaveBeenCalledTimes(1)
-      expect(mockGetUser).toHaveBeenCalledWith('mockValidatedUsername')
-    })
-
-    it('should send 401 status when result from getUser is undefined', async () => {
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue(null)
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-      expect(mockGetUser).toHaveBeenCalledTimes(1)
-      expect(mockGetUser).toHaveBeenCalledWith('mockValidatedUsername')
-    })
-
-    it('should send 401 status when result from getUser has undefined/null Item', async () => {
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue({})
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-      expect(mockGetUser).toHaveBeenCalledTimes(1)
-      expect(mockGetUser).toHaveBeenCalledWith('mockValidatedUsername')
-    })
-
-    it('should send 401 status when result.Item from getUser has undefined/null username', async () => {
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue({
-        Item: {}
-      })
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-      expect(mockGetUser).toHaveBeenCalledTimes(1)
-      expect(mockGetUser).toHaveBeenCalledWith('mockValidatedUsername')
-    })
-
-    it('should call bcrypt.compare when result from getUser returns valid data', async () => {
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue({
-        Item: {
-          username: 'mockValidatedUsername',
-          password: 'encryptedUserPassword'
-        }
-      })
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const spiedBcryptCompare = jest.spyOn(bcrypt, 'compare')
-      const mockBcryptCompare = jest.fn().mockResolvedValue(false)
-      spiedBcryptCompare.mockImplementation(mockBcryptCompare)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername',
-            password: 'mockValidatedPassword'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockBcryptCompare).toHaveBeenCalledTimes(1)
-      expect(mockBcryptCompare).toHaveBeenCalledWith('mockValidatedPassword', 'encryptedUserPassword')
-    })
-
-    it('should remove password from response and getUser result when bcrypt.compare returns true', async () => {
-      const mockGetUserData = {
-        Item: {
-          username: 'mockValidatedUsername',
-          password: 'encryptedUserPassword'
-        }
-      }
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue(mockGetUserData)
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const spiedBcryptCompare = jest.spyOn(bcrypt, 'compare')
-      const mockBcryptCompare = jest.fn().mockResolvedValue(true)
-      spiedBcryptCompare.mockImplementation(mockBcryptCompare)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername',
-            password: 'mockValidatedPassword'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockGetUserData.Item.password).toBeUndefined()
-      expect(mockRes.locals.validatedCredentials.password).toBeUndefined()
-    })
-
-    it('should add Item from getUser to response.local.authenticated and call Next function when bcrypt.compare returns true', async () => {
-      const mockGetUserData = {
-        Item: {
-          username: 'mockValidatedUsername',
-          password: 'encryptedUserPassword'
-        }
-      }
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      const mockGetUser = jest.fn().mockResolvedValue(mockGetUserData)
-      spiedGetUser.mockImplementation(mockGetUser)
-
-      const spiedBcryptCompare = jest.spyOn(bcrypt, 'compare')
-      const mockBcryptCompare = jest.fn().mockResolvedValue(true)
-      spiedBcryptCompare.mockImplementation(mockBcryptCompare)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername',
-            password: 'mockValidatedPassword'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockNext).toHaveBeenCalledTimes(1)
-      expect(mockRes.locals.authenticated).toBe(mockGetUserData.Item)
-    })
-
-    it('should send 401 status when anything throws an error', async () => {
-      const spiedGetUser = jest.spyOn(UserModel, 'getUser')
-      spiedGetUser.mockImplementation(async () => {
-        throw new Error('random error')
-      })
-
-      const spiedBcryptCompare = jest.spyOn(bcrypt, 'compare')
-      const mockBcryptCompare = jest.fn().mockResolvedValue(false)
-      spiedBcryptCompare.mockImplementation(mockBcryptCompare)
-
-      const mockSendStatus = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        locals: {
-          validatedCredentials: {
-            username: 'mockValidatedUsername',
-            password: 'mockValidatedPassword'
-          }
-        },
-        sendStatus: mockSendStatus
-      }
-
-      await authenticateLoginCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockNext).not.toHaveBeenCalledTimes(1)
-      expect(mockBcryptCompare).not.toHaveBeenCalledTimes(1)
-      expect(mockSendStatus).toHaveBeenCalledTimes(1)
-      expect(mockSendStatus).toHaveBeenCalledWith(401)
-    })
-  })
-
-  describe('validateSignUpCredentials', () => {
-    it('should send 400 status code with correct text when request does not contain body', async () => {
-      const mockStatus = jest.fn()
-      const mockSend = jest.fn()
-      const mockReq: any = {}
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        status: mockStatus,
-        send: mockSend
-      }
-
-      await validateSignUpCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockStatus).toHaveBeenCalledWith(400)
-      expect(mockSend).toHaveBeenCalledWith('Malformed Request!')
-    })
-
-    it('should send 400 status code with correct text when request body does not contain required user details', async () => {
-      const mockStatus = jest.fn()
-      const mockSend = jest.fn()
-      const mockReq: any = {
-        body: {}
-      }
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        status: mockStatus,
-        send: mockSend
-      }
-
-      await validateSignUpCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockStatus).toHaveBeenCalledWith(400)
-      expect(mockSend).toHaveBeenCalledWith('Required details missing!')
-    })
-
-    it('should not send 400 status code with text when request body contains required user details', async () => {
-      const mockStatus = jest.fn()
-      const mockSend = jest.fn()
-      const mockReq: any = {
-        body: {
-          username: 'mockUsername',
-          password: 'mockPassword',
-          email: 'mockEmail',
-          gender: 'mockGender'
-        }
-      }
-      const mockNext = jest.fn()
-      const mockRes: any = {
-        status: mockStatus,
-        send: mockSend
-      }
-
-      await validateSignUpCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockStatus).not.toHaveBeenCalledWith(400)
-      expect(mockSend).not.toHaveBeenCalledWith('Required details missing!')
-    })
-
-    it('should validate user details by calling respective isValid function', async () => {
-      const mockIsValidUsername = jest.fn().mockReturnValue(true)
-      const mockisValidPassword = jest.fn().mockReturnValue(true)
-      const mockisValidEmail = jest.fn().mockReturnValue(true)
-      const mockisValidGender = jest.fn().mockReturnValue(false)
-
-      jest.spyOn(ValidationUtils, 'isValidUsername').mockImplementation(mockIsValidUsername)
-      jest.spyOn(ValidationUtils, 'isValidPassword').mockImplementation(mockisValidPassword)
-      jest.spyOn(ValidationUtils, 'isValidEmail').mockImplementation(mockisValidEmail)
-      jest.spyOn(ValidationUtils, 'isValidGender').mockImplementation(mockisValidGender)
-
-      const mockStatus = jest.fn()
-      const mockSend = jest.fn()
-      const mockNext = jest.fn()
-      const mockReq: any = {
-        body: {
-          username: 'mockUsername',
-          password: 'mockPassword',
-          email: 'mockEmail',
-          gender: 'mockGender'
-        }
-      }
-      const mockRes: any = {
-        status: mockStatus,
-        send: mockSend
-      }
-
-      await validateSignUpCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockIsValidUsername).toHaveBeenCalled()
-      expect(mockIsValidUsername).toHaveBeenCalledWith('mockUsername')
-
-      expect(mockisValidPassword).toHaveBeenCalled()
-      expect(mockisValidPassword).toHaveBeenCalledWith('mockPassword')
-
-      expect(mockisValidEmail).toHaveBeenCalled()
-      expect(mockisValidEmail).toHaveBeenCalledWith('mockEmail')
-
-      expect(mockisValidGender).toHaveBeenCalled()
-      expect(mockisValidGender).toHaveBeenCalledWith('mockGender')
-    })
-
-    it('should send 401 status with correct text and not add validatedPotentialUserDetails parameter to response.locals object when any user details are invalid', async () => {
-      jest.spyOn(ValidationUtils, 'isValidUsername').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidPassword').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidEmail').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidGender').mockReturnValue(false)
-
-      const mockStatus = jest.fn()
-      const mockSend = jest.fn()
-      const mockNext = jest.fn()
-      const mockReq: any = {
-        body: {
-          username: 'mockUsername',
-          password: 'mockPassword',
-          email: 'mockEmail',
-          gender: 'mockGender'
-        }
-      }
-      const mockRes: any = {
-        locals: {},
-        status: mockStatus,
-        send: mockSend
-      }
-
-      await validateSignUpCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toBeUndefined()
-      expect(mockStatus).toHaveBeenCalledWith(401)
-      expect(mockSend).toHaveBeenCalledWith('One or more details incorrect or missing!')
-    })
-
-    it('should call next function and pass on validated data along with hashed password via locals obj in response when all user provided details are valid', async () => {
-      jest.spyOn(ValidationUtils, 'isValidUsername').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidPassword').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidEmail').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidGender').mockReturnValue(true)
-
-      const mockStatus = jest.fn()
-      const mockSend = jest.fn()
-      const mockNext = jest.fn()
-      const mockReq: any = {
-        body: {
-          username: 'mockUsername',
-          password: 'mockPassword',
-          email: 'mockEmail',
-          gender: 'mockGender'
-        }
-      }
-      const mockRes: any = {
-        locals: {},
-        status: mockStatus,
-        send: mockSend
-      }
-
-      await validateSignUpCredentials(mockReq, mockRes, mockNext)
-
-      expect(mockNext).toHaveBeenCalled()
-      expect(mockSend).not.toHaveBeenCalled()
-      expect(mockStatus).not.toHaveBeenCalled()
-      expect(mockRes.locals.validatedPotentialUserDetails).not.toBeUndefined()
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('username')
-      expect(mockRes.locals.validatedPotentialUserDetails.username).toBe('mockUsername')
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('password')
-      expect(mockRes.locals.validatedPotentialUserDetails.password).not.toBe('mockPassword')
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('email')
-      expect(mockRes.locals.validatedPotentialUserDetails.email).toBe('mockEmail')
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('friends')
-      expect(mockRes.locals.validatedPotentialUserDetails.friends).toEqual([])
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('gender')
-      expect(mockRes.locals.validatedPotentialUserDetails.gender).toBe('mockGender')
+      register(mockReq, mockRes, mockNext)
+
+      expect(mockRedirect).not.toHaveBeenCalled()
+      expect(mockSendFile).toHaveBeenCalled()
+      expect(mockSendFile).toHaveBeenCalledWith('register.html', { root: expect.stringContaining('public') })
     })
   })
 })
