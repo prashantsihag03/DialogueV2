@@ -76,6 +76,8 @@ export const logout = async (_req: Request, _res: Response, next: NextFunction):
     _res.redirect('/')
   } catch (e) {
     console.error('[Error][Logout]: {}', e)
+    _res.status(500)
+    _res.send('Something went wrong. Please try again!')
   }
 }
 
