@@ -6,7 +6,7 @@ import { validateAccessToken } from '../utils/jwt-utils'
 import { extractTokens } from '../utils/session-utils'
 
 const options = {
-  root: path.resolve('../public')
+  root: path.resolve('./public')
 }
 
 /**
