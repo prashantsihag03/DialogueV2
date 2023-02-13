@@ -8,4 +8,7 @@
     "outDir": "./build",
     "strict": true,
   },
+  "exclude": [
+    "tests"
+  ]
 }
