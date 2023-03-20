@@ -2,7 +2,7 @@ import http from 'http'
 import { Server } from 'socket.io'
 import createApp from './app'
 
-const port: number = (process.env.PORT != null && process.env.PORT !== '') ? Number(process.env.PORT) : 3000
+const port: number = process.env.PORT != null && process.env.PORT !== '' ? Number(process.env.PORT) : 3000
 
 // Express App
 const app = createApp()

@@ -101,6 +101,26 @@ Two tables are necessary
 
 <br/>
 
+# Start Dev Server in Watch mode
+
+> npm run serve
+
+# Start Prod Server
+
+> npm run build; npm run start
+
+# Start dev server but with prod config
+
+> npm run dev
+
 # Run tests locally
 
 > npm run test
+
+# Run tests locally
+
+> npm run test
+
+# Lint
+
+> npm run lint

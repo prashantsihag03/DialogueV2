@@ -35,7 +35,7 @@ export default function (): Express.Application {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.get('/home', validateTokens, redirectUnAuthenticated, (_req, _res, next) => {
-    _res.sendFile('home.html', options)
+    _res.sendFile('index.html', options)
   })
 
   app.use('/', authRouter)
