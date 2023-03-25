@@ -25,6 +25,7 @@ small {
     position: absolute;
     top: 1%;
     left: 1%;
+    width: 120px;
     z-index: 1000000;
     border-radius: 0.2em;
     text-align: center;
@@ -46,6 +47,7 @@ main {
     height: 100vh;
     justify-content: space-between;
     align-items: center;
+    background-color: #8dafff;
 }
 #toggleForm {
     display: none;
@@ -65,7 +67,6 @@ main {
     align-items: center;
     width: 50%;
     height: 100%;
-    background-color: rgb(70, 130, 180);
     transition: all 0.4s linear;
 }
 
@@ -75,7 +76,6 @@ main {
     justify-content: center;
     width: 50%;
     height: 100%;
-    background-color: lightcoral;
     transition: all 0.4s linear;
 }
 
@@ -83,7 +83,6 @@ main {
     display: flex;
     flex-direction: column;
     width: 20em;
-    /* max-width: ; */
     margin: auto;
 }
 #login {
@@ -107,7 +106,7 @@ main {
 }
 
 .form-instance > label {
-    color: white;
+    color: black;
     letter-spacing: 0.1em;
 }
 
@@ -118,7 +117,7 @@ main {
     border-radius: 0.4em;
     font-size: 1.5em;
     color: white;
-    background-color: midnightblue;
+    background-color: black;
     transition: all 0.3s linear;
 }
 #loginsubmit {
@@ -128,14 +127,13 @@ main {
     border-radius: 0.4em;
     font-size: 1.5em;
     color: white;
-    background-color: saddlebrown;
+    background-color: black;
     transition: all 0.3s linear;
 }
 
 #loginsubmit:hover, #signupsubmit:hover {
-    background-color: rgb(102, 192, 94);
+    background-color: #2b6bff;
     cursor: pointer;
-    letter-spacing: 0.1em;
 }
 
 @media only screen and (max-width: 800px) {
@@ -167,8 +165,6 @@ main {
     }
 
     #signup-container {
-        /* position: absolute;
-        z-index: -1; */
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -180,8 +176,6 @@ main {
     }
     
     #login-container {
-        /* position: absolute;
-        z-index: 1; */
         display: flex;
         justify-content: center;
         width: 100%;
