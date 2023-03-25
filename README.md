@@ -2,7 +2,7 @@
 
 DialogueV2, as the name suggests, is a second version for Dialogue which was first created with an aim to acquire new skills and gain hands-on experience. Second version rebuilds the project from scratch to improve upon the code base and use newly acquired skills such as Typescript, testing, and many more.
 
-_The project is a chat application with no aim to make it available commercially and is built just for the purpose of getting hands on experience with some of the technologies used._
+\_The project is a chat application with no aim to make it available commercially and is built just for the purpose of getting hands on experience with some of the technologies used and serve as a playground for future learnings as well.
 
 <details>
 <summary><b>Whats wrong with Version 1</b></summary>
