@@ -34,12 +34,16 @@ export const rejectInValidLoginCredentials = (_req: Request, _res: Response, nex
  * Authenticates user provided credentials with database.
  * Expects credentials to be already processed and present in response.locals.validatedCredentials object.
  */
-export const authenticateLoginCredentials = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+export const authenticateLoginCredentials = async (
+  _req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     if (_res.locals.validatedCredentials?.username == null) {
       _res.sendStatus(401)
       return
-    };
+    }
 
     const result = await getUser(_res.locals.validatedCredentials.username)
 

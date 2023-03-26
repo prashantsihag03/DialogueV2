@@ -11,7 +11,20 @@ const app = createApp()
 const server = http.createServer(app)
 
 // WebSocket Server Setup
-const SocketIO = new Server(server)
+let socketServerOptions
+if (process.env.NODE_ENV != null && process.env.NODE_ENV === 'development') {
+  console.log('Allowing CORS on socket connections to http://localhost:8080')
+
+  socketServerOptions = {
+    cors: {
+      origin: 'http://localhost:8080'
+    }
+  }
+} else {
+  socketServerOptions = {}
+}
+
+const SocketIO = new Server(server, socketServerOptions)
 
 // SocketIO Events
 SocketIO.on('connection', (socket) => {
