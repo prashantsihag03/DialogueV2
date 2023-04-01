@@ -73,7 +73,12 @@ export const authenticateLoginCredentials = async (
  */
 export const login = async (_req: Request, _res: Response): Promise<void> => {
   const tokens = await generateJwtToken(_res.locals.authenticated)
-  _res.cookie(SESSION_COOKIE_NAME, tokens, { httpOnly: true })
+  _res.cookie(SESSION_COOKIE_NAME, tokens, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    path: '/'
+  })
   console.log(`${_res.locals.authenticated.username as string} login successful!`)
   _res.redirect('/home')
 }

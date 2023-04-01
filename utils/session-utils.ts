@@ -3,7 +3,10 @@ import { SESSION_COOKIE_NAME } from '../constants'
 import { type JwtTokens } from './jwt-utils/types'
 
 export const extractTokens = (_req: Request): JwtTokens | null => {
-  if (_req.cookies?.[`${SESSION_COOKIE_NAME}`]?.accessToken != null && _req.cookies[`${SESSION_COOKIE_NAME}`].refreshToken != null) {
+  if (
+    _req.cookies?.[`${SESSION_COOKIE_NAME}`]?.accessToken != null &&
+    _req.cookies[`${SESSION_COOKIE_NAME}`].refreshToken != null
+  ) {
     return {
       accessToken: _req.cookies[`${SESSION_COOKIE_NAME}`].accessToken,
       refreshToken: _req.cookies[`${SESSION_COOKIE_NAME}`].refreshToken
@@ -31,5 +34,5 @@ const extractSessionDataFromHeaders = (_req: Request): JwtTokens | null => {
     })
   }
 
-  return (accessToken != null && refreshToken != null) ? { accessToken, refreshToken } : null
+  return accessToken != null && refreshToken != null ? { accessToken, refreshToken } : null
 }

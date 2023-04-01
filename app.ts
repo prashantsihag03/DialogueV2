@@ -1,6 +1,5 @@
 import cookieParser from 'cookie-parser'
 import express from 'express'
-import cors, { type CorsOptions } from 'cors'
 import path from 'path'
 import { redirectUnAuthenticated, validateTokens } from './middlewares/auth'
 import authRouter from './routes/auth'
@@ -16,15 +15,6 @@ export default function (): Express.Application {
 
   // App level Middlewares
   app.disable('x-powered-by')
-  if (process.env.NODE_ENV != null && process.env.NODE_ENV === 'development') {
-    console.log('Allowing CORS on http requests to http://localhost:8080')
-    const corsOptions: CorsOptions = {
-      origin: 'http://localhost:8080',
-      allowedHeaders: ['Access-Control-Allow-Origin'],
-      exposedHeaders: ['Access-Control-Allow-Origin']
-    }
-    app.use(cors(corsOptions))
-  }
   app.use(cookieParser())
   app.use(express.json())
   app.use(express.static(path.join(__dirname, 'public')))
