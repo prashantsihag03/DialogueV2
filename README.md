@@ -68,34 +68,77 @@ Two tables are necessary
 1. yourchats_users
 2. yourchats_sessions
 
-- Create table using following cmds from your terminal. Region here is also for sake of validation and could be any region.
+Create table using following cmds from your terminal. Region here is also for sake of validation and could be any region.
 
 #### Users Table
 
-> aws dynamodb create-table \
-> --table-name yourchats_users \
-> --attribute-definitions AttributeName=username,AttributeType=S \
-> --key-schema AttributeName=username,KeyType=HASH \
-> --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-> --endpoint-url http://localhost:8000 --region=us-east-1
+```
+aws dynamodb create-table \
+--table-name dialogueV2_users \
+--attribute-definitions AttributeName=username,AttributeType=S \
+--key-schema AttributeName=username,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+--endpoint-url http://localhost:8000 --region=us-east-1
+```
 
 #### Sessions Table
 
-> aws dynamodb create-table \
-> --table-name yourchats_sessions \
-> --attribute-definitions AttributeName=sessionid,AttributeType=S \
-> --key-schema AttributeName=sessionid,KeyType=HASH \
-> --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-> --endpoint-url http://localhost:8000 --region=us-east-1
+```
+aws dynamodb create-table \
+--table-name dialogueV2_sessions \
+--attribute-definitions AttributeName=sessionid,AttributeType=S \
+--key-schema AttributeName=sessionid,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+--endpoint-url http://localhost:8000 --region=us-east-1
+```
+
+#### Conversations Table
+
+```
+aws dynamodb create-table \
+--table-name dialogueV2_conversations \
+--attribute-definitions AttributeName=conversationId,AttributeType=S \
+--key-schema AttributeName=conversationId,KeyType=HASH \
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+--endpoint-url http://localhost:8000 --region=us-east-1
+```
+
+#### ConversationMembers Table
+
+```
+aws dynamodb create-table \
+--table-name dialogueV2_conversationMembers \
+--attribute-definitions AttributeName=conversationId,AttributeType=S AttributeName=username,AttributeType=S \
+--key-schema AttributeName=conversationId,KeyType=HASH AttributeName=username,KeyType=RANGE \
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+--endpoint-url http://localhost:8000 --region=us-east-1
+```
+
+#### Messages Table
+
+```
+aws dynamodb create-table \
+--table-name dialogueV2_messages \
+--attribute-definitions AttributeName=conversationId,AttributeType=S AttributeName=messageId,AttributeType=S \
+--key-schema AttributeName=conversationId,KeyType=HASH AttributeName=messageId,KeyType=RANGE \
+--provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+--endpoint-url http://localhost:8000 --region=us-east-1
+```
 
 </details>
 
 <details>
 <summary><u>Check Database Table descriptions</u></summary>
 
-> aws dynamodb describe-table --table-name yourchats_sessions --endpoint-url http://localhost:8000 --region=us-east-1
+> aws dynamodb describe-table --table-name dialogueV2_sessions --endpoint-url http://localhost:8000 --region=us-east-1
 
-> aws dynamodb describe-table --table-name yourchats_users --endpoint-url http://localhost:8000 --region=us-east-1
+> aws dynamodb describe-table --table-name dialogueV_users --endpoint-url http://localhost:8000 --region=us-east-1
+
+> aws dynamodb describe-table --table-name dialogueV2_conversations --endpoint-url http://localhost:8000 --region=us-east-1
+
+> aws dynamodb describe-table --table-name dialogueV2_conversationMembers --endpoint-url http://localhost:8000 --region=us-east-1
+
+> aws dynamodb describe-table --table-name dialogueV2_messages --endpoint-url http://localhost:8000 --region=us-east-1
 
 </details>
 

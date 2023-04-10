@@ -14,14 +14,20 @@ export const getSession = async (sessionid: string): Promise<PromiseResult<Docum
   }).promise()
 }
 
-export const storeSession = async (session: Session): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> => {
+export const storeSession = async (
+  session: Session
+): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> => {
   return await DynamoDB.put({
-    Item: session, TableName: SESSION_TABLE
+    Item: session,
+    TableName: SESSION_TABLE
   }).promise()
 }
 
-export const deleteSession = async (sessionId: string): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> => {
+export const deleteSession = async (
+  sessionId: string
+): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> => {
   return await DynamoDB.delete({
-    Key: { sessionid: sessionId }, TableName: SESSION_TABLE
+    Key: { sessionid: sessionId },
+    TableName: SESSION_TABLE
   }).promise()
 }
