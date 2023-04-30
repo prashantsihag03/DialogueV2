@@ -29,6 +29,22 @@ export const getConversationMembers = async (
   }).promise()
 }
 
+export const getAllConversationIdsByMember = async (
+  memberUsername: string
+): Promise<PromiseResult<DocumentClient.QueryOutput, AWSError>> => {
+  return await DynamoDB.query({
+    TableName: CONVERSATION_MEMBERS_TABLE,
+    KeyConditionExpression: '#memberId = :memberId',
+    ExpressionAttributeNames: {
+      '#memberId': 'memberId'
+    },
+    ExpressionAttributeValues: {
+      ':memberId': memberUsername
+    },
+    ProjectionExpression: 'conversationId'
+  }).promise()
+}
+
 export const getConversationMember = async (
   conversationId: string,
   memberUsername: string

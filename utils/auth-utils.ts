@@ -6,11 +6,18 @@ export interface ValidatedCredentials {
   password: string
 }
 
-export const isAuthenticated = (_res: Response): boolean => {
-  return (_res.locals.authenticated != null && _res.locals.authenticated === true)
+export const getUsername = (_res: Response): string | undefined => {
+  if (_res.locals?.jwt?.username != null) {
+    return _res.locals.jwt.username
+  }
+  return undefined
 }
 
-export const getAuthenticatedUserData = (_res: Response): { sessionId: string, username: string } | null => {
+export const isAuthenticated = (_res: Response): boolean => {
+  return _res.locals.authenticated != null && _res.locals.authenticated === true
+}
+
+export const getAuthenticatedUserData = (_res: Response): { sessionId: string; username: string } | null => {
   if (!isAuthenticated(_res)) return null
   return {
     sessionId: _res.locals.sessionId as string,

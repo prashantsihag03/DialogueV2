@@ -12,6 +12,7 @@ export interface User {
 
 export interface IConversations {
   conversationId: string // PK
+  conversationName: string
   isGroup: boolean
   createdAt: number
 }

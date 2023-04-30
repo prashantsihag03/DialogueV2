@@ -1,12 +1,12 @@
 {
-  "name": "yourchatsv2",
+  "name": "dialoguev2",
   "version": "1.0.0",
   "description": "Second version to YourChats Chat application primarliy developed to gain hands-on experience with certain tools and technologies.",
   "main": "index.ts",
   "scripts": {
     "test": "jest",
     "lint": "eslint .",
-    "serve": "NODE_ENV=development nodemon -r dotenv/config index.ts",
+    "watch": "NODE_ENV=development nodemon -r dotenv/config index.ts",
     "build": "rm -rf build/*; tsc; cp -r public ./build/public",
     "start": "NODE_ENV=production node ./build/index.js",
     "devStart": "cp .env build/.env; NODE_ENV=production node -r dotenv/config ./build/index.js",

@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import path from 'path'
 import { redirectUnAuthenticated, validateTokens } from './middlewares/auth'
 import authRouter from './routes/auth'
+import conversationsRouter from './routes/conversations'
 import errorRouter from './routes/error'
 import { isAuthenticated } from './utils/auth-utils'
 
@@ -41,6 +42,7 @@ export default function (): Express.Application {
   })
 
   app.use('/', authRouter)
+  app.use('/conversations', conversationsRouter)
   app.use(errorRouter)
 
   return app

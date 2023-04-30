@@ -29,140 +29,37 @@ In version 2, I'm aiming to
 
 # Development Setup:
 
+- Install Node v18.14.1
 - Clone Repository
-- Setup Database by following instructions provided below.
+- Setup Database by following instructions provided in [Local DB Setup Guide.](dev/db/README.md)
 - Duplicate `.env.dev` file and rename it as `.env`.
-- Update database url to point to the local dockerised database url.
-- Run
-  > npm install; npm run start;
+- Update database url in newly created `.env` to point to the local dockerised database url.
+- Install dependencies
+  > npm install
+- Congratualtions. Local dev setup is complete. Feel free to execute any cmds from `package.json`
 
 <br/>
 
-# Development Database Setup
+# Scripts
 
-<details>
-<summary><u>Setup Docker</u></summary>
+- Run development server in watch mode
 
-- Download and Install the Dockerized version of DynamoDBDynamodb local from AWS official resource.
-  > https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html
-- Download and Install the AWS CLI
-  > https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+  > npm run watch
 
-</details>
+- Create production build
 
-<details>
-<summary><u>Set AWS Dummy credentials</u></summary>
+  > npm run build
 
-- Add following variables to your terminal. The credentials could be anything. They just need to satisfy validation and wont be used for local dynamodb.
-
-  > export AWS_ACCESS_KEY_ID=223344
-
-  > export AWS_SECRET_ACCESS_KEY=wJalrXUtTHISI/DYNAMODB/bPxRfiCYEXAMPLEKEY
-
-</details>
-
-<details>
-<summary><u>Create Tables</u></summary>
-Two tables are necessary
-
-1. yourchats_users
-2. yourchats_sessions
-
-Create table using following cmds from your terminal. Region here is also for sake of validation and could be any region.
-
-#### Users Table
-
-```
-aws dynamodb create-table \
---table-name dialogueV2_users \
---attribute-definitions AttributeName=username,AttributeType=S \
---key-schema AttributeName=username,KeyType=HASH \
---provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
---endpoint-url http://localhost:8000 --region=us-east-1
-```
-
-#### Sessions Table
-
-```
-aws dynamodb create-table \
---table-name dialogueV2_sessions \
---attribute-definitions AttributeName=sessionid,AttributeType=S \
---key-schema AttributeName=sessionid,KeyType=HASH \
---provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
---endpoint-url http://localhost:8000 --region=us-east-1
-```
-
-#### Conversations Table
-
-```
-aws dynamodb create-table \
---table-name dialogueV2_conversations \
---attribute-definitions AttributeName=conversationId,AttributeType=S \
---key-schema AttributeName=conversationId,KeyType=HASH \
---provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
---endpoint-url http://localhost:8000 --region=us-east-1
-```
-
-#### ConversationMembers Table
-
-```
-aws dynamodb create-table \
---table-name dialogueV2_conversationMembers \
---attribute-definitions AttributeName=conversationId,AttributeType=S AttributeName=username,AttributeType=S \
---key-schema AttributeName=conversationId,KeyType=HASH AttributeName=username,KeyType=RANGE \
---provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
---endpoint-url http://localhost:8000 --region=us-east-1
-```
-
-#### Messages Table
-
-```
-aws dynamodb create-table \
---table-name dialogueV2_messages \
---attribute-definitions AttributeName=conversationId,AttributeType=S AttributeName=messageId,AttributeType=S \
---key-schema AttributeName=conversationId,KeyType=HASH AttributeName=messageId,KeyType=RANGE \
---provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
---endpoint-url http://localhost:8000 --region=us-east-1
-```
-
-</details>
-
-<details>
-<summary><u>Check Database Table descriptions</u></summary>
-
-> aws dynamodb describe-table --table-name dialogueV2_sessions --endpoint-url http://localhost:8000 --region=us-east-1
-
-> aws dynamodb describe-table --table-name dialogueV_users --endpoint-url http://localhost:8000 --region=us-east-1
-
-> aws dynamodb describe-table --table-name dialogueV2_conversations --endpoint-url http://localhost:8000 --region=us-east-1
-
-> aws dynamodb describe-table --table-name dialogueV2_conversationMembers --endpoint-url http://localhost:8000 --region=us-east-1
-
-> aws dynamodb describe-table --table-name dialogueV2_messages --endpoint-url http://localhost:8000 --region=us-east-1
-
-</details>
+- Start production build
+  > npm run start
 
 <br/>
 
-# Start Dev Server in Watch mode
-
-> npm run serve
-
-# Start Prod Server
-
-> npm run build; npm run start
-
-# Start dev server but with prod config
-
-> npm run dev
-
-# Run tests locally
+# Tests
 
 > npm run test
 
-# Run tests locally
-
-> npm run test
+<br/>
 
 # Lint
 

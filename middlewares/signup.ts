@@ -17,7 +17,8 @@ export const validateSignUpCredentials = async (_req: Request, _res: Response, n
     return
   }
 
-  if (isValidUsername(_req.body.username) &&
+  if (
+    isValidUsername(_req.body.username) &&
     isValidPassword(_req.body.password) &&
     isValidEmail(_req.body.email) &&
     isValidGender(_req.body.gender)
@@ -27,7 +28,6 @@ export const validateSignUpCredentials = async (_req: Request, _res: Response, n
       username: _req.body.username,
       password: await bcrypt.hash(_req.body.password, saltRounds),
       email: _req.body.email,
-      friends: [],
       gender: _req.body.gender
     }
     _res.locals.validatedPotentialUserDetails = potentialUser

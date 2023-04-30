@@ -39,6 +39,18 @@ export const getConversationMessage = async (
   }).promise()
 }
 
+export const getLastMessages = async (
+  conversationIds: string[]
+): Promise<PromiseResult<DocumentClient.BatchGetItemOutput, AWSError>> => {
+  return await DynamoDB.batchGet({
+    RequestItems: {
+      MESSAGES_TABLE: {
+        Keys: conversationIds.map((id) => ({ conversationId: id }))
+      }
+    }
+  }).promise()
+}
+
 export const deleteMessage = async (
   conversationId: string,
   messageId: string

@@ -15,7 +15,6 @@ describe('JWT Utils Test Suite', () => {
 
       const mockUser: User = {
         email: 'mockEmail@gmail.com',
-        friends: [],
         gender: 'male',
         password: 'mockPassword',
         username: MOCK_USERNAME
@@ -36,7 +35,6 @@ describe('JWT Utils Test Suite', () => {
 
       const mockUser: User = {
         email: 'mockEmail@gmail.com',
-        friends: [],
         gender: 'male',
         password: 'mockPassword',
         username: MOCK_USERNAME
@@ -87,7 +85,9 @@ describe('JWT Utils Test Suite', () => {
 
   describe('validateRefreshToken', () => {
     it('should call verify function', async () => {
-      const mockVerify = jest.fn().mockImplementation(() => { throw new Error('random error') })
+      const mockVerify = jest.fn().mockImplementation(() => {
+        throw new Error('random error')
+      })
       jest.spyOn(jwt, 'verify').mockImplementation(mockVerify)
 
       await JwtUtils.validateRefreshToken('mockRefreshToken', MOCK_USERNAME)
@@ -97,7 +97,9 @@ describe('JWT Utils Test Suite', () => {
     })
 
     it('should call getSession when refreshToken verification is successful', async () => {
-      jest.spyOn(jwt, 'verify').mockImplementation(() => { return 'mock' })
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {
+        return 'mock'
+      })
       const mockGetSession = jest.fn().mockRejectedValue(new Error('failed!'))
       jest.spyOn(SessionsModel, 'getSession').mockImplementation(mockGetSession)
 
@@ -144,7 +146,9 @@ describe('JWT Utils Test Suite', () => {
     })
 
     it('should return false when getSession throws error', async () => {
-      jest.spyOn(jwt, 'verify').mockImplementation(() => { return 'mock' })
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {
+        return 'mock'
+      })
       const mockGetSession = jest.fn().mockImplementation(() => new Error('failed!'))
       jest.spyOn(SessionsModel, 'getSession').mockImplementation(mockGetSession)
 
@@ -170,7 +174,9 @@ describe('JWT Utils Test Suite', () => {
     })
 
     it('should return false when verify throws error', async () => {
-      jest.spyOn(jwt, 'verify').mockImplementation(() => { throw new Error('failed!') })
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {
+        throw new Error('failed!')
+      })
 
       const result = await JwtUtils.validateRefreshToken('mockRefreshToken', MOCK_USERNAME)
 
@@ -186,12 +192,17 @@ describe('JWT Utils Test Suite', () => {
       const result = JwtUtils.createAccessToken(MOCK_USERNAME)
 
       expect(mockCreateToken).toHaveBeenCalled()
-      expect(mockCreateToken).toHaveBeenCalledWith({ username: MOCK_USERNAME }, { expiresIn: Number(ACCESS_TOKEN_EXPIRATION) })
+      expect(mockCreateToken).toHaveBeenCalledWith(
+        { username: MOCK_USERNAME },
+        { expiresIn: Number(ACCESS_TOKEN_EXPIRATION) }
+      )
       expect(result).toBe('mockToken')
     })
 
     it('should throw error when createToken throws error', () => {
-      jest.spyOn(JwtUtils, 'createToken').mockImplementation(() => { throw new Error('any error') })
+      jest.spyOn(JwtUtils, 'createToken').mockImplementation(() => {
+        throw new Error('any error')
+      })
       expect(() => {
         JwtUtils.createAccessToken(MOCK_USERNAME)
       }).toThrowError()
@@ -206,12 +217,17 @@ describe('JWT Utils Test Suite', () => {
       const result = JwtUtils.createRefreshToken(MOCK_USERNAME)
 
       expect(mockCreateToken).toHaveBeenCalled()
-      expect(mockCreateToken).toHaveBeenCalledWith({ username: MOCK_USERNAME }, { expiresIn: Number(REFRESH_TOKEN_EXPIRATION) })
+      expect(mockCreateToken).toHaveBeenCalledWith(
+        { username: MOCK_USERNAME },
+        { expiresIn: Number(REFRESH_TOKEN_EXPIRATION) }
+      )
       expect(result).toBe('mockToken')
     })
 
     it('should throw error when createToken throws error', () => {
-      jest.spyOn(JwtUtils, 'createToken').mockImplementation(() => { throw new Error('any error') })
+      jest.spyOn(JwtUtils, 'createToken').mockImplementation(() => {
+        throw new Error('any error')
+      })
       expect(() => {
         JwtUtils.createRefreshToken(MOCK_USERNAME)
       }).toThrowError()
@@ -234,7 +250,9 @@ describe('JWT Utils Test Suite', () => {
     })
 
     it('should throw error when jwt.sign throws error', () => {
-      jest.spyOn(jwt, 'sign').mockImplementation(() => { throw new Error('any error') })
+      jest.spyOn(jwt, 'sign').mockImplementation(() => {
+        throw new Error('any error')
+      })
       const mockJwtData = { username: MOCK_USERNAME }
       const mockJwtSignOptions = { expiresIn: 100 }
 
@@ -265,7 +283,9 @@ describe('JWT Utils Test Suite', () => {
     })
 
     it('should throw error when jwt.decode throws error', () => {
-      jest.spyOn(jwt, 'decode').mockImplementation(() => { throw new Error('any error') })
+      jest.spyOn(jwt, 'decode').mockImplementation(() => {
+        throw new Error('any error')
+      })
       expect(() => {
         JwtUtils.decodeAccessToken('mockAccessToken')
       }).toThrowError()

@@ -1,6 +1,7 @@
 import http from 'http'
 import createApp from './app'
-import socketServer from './Socket/socketServer'
+import { isDevEnv } from './constants'
+import initializeSocketServer from './Socket/socketServer'
 
 const port: number = process.env.PORT != null && process.env.PORT !== '' ? Number(process.env.PORT) : 3000
 
@@ -11,8 +12,12 @@ const app = createApp()
 const server = http.createServer(app)
 
 // WebSocket Server Setup
-socketServer(server)
+initializeSocketServer(server)
 
 server.listen(port, () => {
-  console.log(`DialogueV2 Backend Server: http://localhost:${port}/`)
+  if (isDevEnv) {
+    console.log(`DialogueV2 Dev Backend Server: http://localhost:${port}/`)
+  } else {
+    console.log('DialogueV2 Application successfully started!')
+  }
 })

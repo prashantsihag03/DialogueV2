@@ -23,6 +23,20 @@ export const getConversation = async (
   }).promise()
 }
 
+// export const getConversationsByIds = async (
+//   conversationIds: string[]
+// ): Promise<PromiseResult<DocumentClient.GetItemOutput, AWSError>> => {
+//   return await DynamoDB.query({
+//     TableName: CONVERSATIONS_TABLE,
+//     KeyConditionExpression: 'conversationId = :conversationId',
+//     FilterExpression: `contains(info.genres , :qqqq)`,
+//     ExpressionAttributeValues: {
+//       ':qqqq': { S: 'Biography' },
+//       ':conversationId':
+//     }
+//   }).promise()
+// }
+
 export const deleteConversation = async (
   conversationId: string
 ): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> => {
