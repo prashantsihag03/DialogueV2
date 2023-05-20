@@ -2,7 +2,7 @@
 
 DialogueV2, as the name suggests, is a second version for Dialogue which was first created with an aim to acquire new skills and gain hands-on experience. Second version rebuilds the project from scratch to improve upon the code base and use newly acquired skills such as Typescript, testing, and many more.
 
-\_The project is a chat application with no aim to make it available commercially and is built just for the purpose of getting hands on experience with some of the technologies used and serve as a playground for future learnings as well.
+\*_The project has no aim to become available commercially and is built just for the purpose of getting hands on experience with some of the technologies used and serve as a playground for future learnings as well._
 
 <details>
 <summary><b>Whats wrong with Version 1</b></summary>
@@ -30,13 +30,35 @@ In version 2, I'm aiming to
 # Development Setup:
 
 - Install Node v18.14.1
-- Clone Repository
-- Create DIALOGUEV2_HOME variable with value as root directory of the project. Add this variable to `~/.zshrc` or equivalent file and dont forget to source the file or equivalent.
-- Setup Database by following instructions provided in [Local DB Setup Guide.](dev/db/README.md)
+
+- Clone this repository.
+
+- Add path to the root of the cloned repository as DIALOGUEV2_HOME to environment variables such as `~/.zshrc` and source it too.
+
+- Download and Install Docker Desktop.
+
+- Download and Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+- Create and start dynamod-local container
+
+  > cd $DIALOGUEV2_HOME/dev/db
+
+  > docker-compose up
+
+- Setup Base Table
+
+  > sh $DIALOGUEV2_HOME/dev/scripts/setupTable.sh
+
+- Verify Base Table
+
+  > aws dynamodb describe-table --table-name dialogueV2_base --endpoint-url http://localhost:8000 --region=us-east-1
+
 - Duplicate `.env.dev` file and rename it as `.env`.
-- Update database url in newly created `.env` to point to the local dockerised database url.
+
 - Install dependencies
+
   > npm install
+
 - Congratualtions. Local dev setup is complete. Feel free to execute any cmds from `package.json`
 
 <br/>
