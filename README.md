@@ -31,6 +31,7 @@ In version 2, I'm aiming to
 
 - Install Node v18.14.1
 - Clone Repository
+- Create DIALOGUEV2_HOME variable with value as root directory of the project. Add this variable to `~/.zshrc` or equivalent file and dont forget to source the file or equivalent.
 - Setup Database by following instructions provided in [Local DB Setup Guide.](dev/db/README.md)
 - Duplicate `.env.dev` file and rename it as `.env`.
 - Update database url in newly created `.env` to point to the local dockerised database url.
@@ -51,6 +52,7 @@ In version 2, I'm aiming to
   > npm run build
 
 - Start production build
+
   > npm run start
 
 <br/>
