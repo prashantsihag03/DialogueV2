@@ -11,16 +11,12 @@ export interface IUserProfileAttibutes {
   gender: string
   email: string
 }
+export interface IUserProfileKeys extends IBaseTable<typeof USER_PREFIX, typeof PROFILE_PREFIX> {}
+export interface IUserProfileEntity extends IUserProfileKeys, IUserProfileAttibutes {}
 
 export interface IUserConversationAttributes {
   conversationId: string
   conversationName: string
 }
-
-export interface IUserProfileEntity
-  extends IBaseTable<typeof USER_PREFIX, typeof PROFILE_PREFIX>,
-    IUserProfileAttibutes {}
-
-export interface IUserConversationEntity
-  extends IBaseTable<typeof USER_PREFIX, typeof CONVERSATION_PREFIX>,
-    IUserConversationAttributes {}
+export interface IUserConversationKeys extends IBaseTable<typeof USER_PREFIX, typeof CONVERSATION_PREFIX> {}
+export interface IUserConversationEntity extends IUserConversationKeys, IUserConversationAttributes {}
