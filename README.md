@@ -4,6 +4,8 @@ DialogueV2, as the name suggests, is a second version for Dialogue which was fir
 
 \*_The project has no aim to become available commercially and is built just for the purpose of getting hands on experience with some of the technologies used and serve as a playground for future learnings as well._
 
+This repository holds backend part of Dialogue's Version 2. To see its frontend, see [this.](https://github.com/prashantsihag03/dialogueV2-fe)
+
 <details>
 <summary><b>Whats wrong with Version 1</b></summary>
 
@@ -31,7 +33,7 @@ DialogueV2, as the name suggests, is a second version for Dialogue which was fir
 - Clone this repository.
 - Add path to the root of the cloned repository as DIALOGUEV2_HOME to environment variables such as `~/.zshrc` and source it too.
 - Download and Install Docker Desktop.
-- Download and Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- Download and Install the AWS CLI.
 - Create and start dynamod-local container
 
   > cd $DIALOGUEV2_HOME/dev/db; </br>
@@ -51,7 +53,7 @@ DialogueV2, as the name suggests, is a second version for Dialogue which was fir
 
   > npm install
 
-- Congratualtions. Local dev setup is complete. Feel free to execute any cmds from `package.json`
+- Congratualtions. Local dev setup is complete.
 
 <br/>
 
