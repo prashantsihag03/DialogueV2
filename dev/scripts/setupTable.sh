@@ -25,8 +25,8 @@ fi
 echo "Table does not exist. Creating .."
 aws dynamodb create-table \
   --table-name $table_name \
-  --attribute-definitions AttributeName=pki,AttributeType=S AttributeName=ski,AttributeType=S \
-  --key-schema AttributeName=pki,KeyType=HASH AttributeName=ski,KeyType=RANGE \
+  --attribute-definitions AttributeName=pkid,AttributeType=S AttributeName=skid,AttributeType=S \
+  --key-schema AttributeName=pkid,KeyType=HASH AttributeName=skid,KeyType=RANGE \
   --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
   --endpoint-url $db_endpoint \
   --output text > /dev/null
