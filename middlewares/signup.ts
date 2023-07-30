@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import { type User } from '../models/types'
 import { type NextFunction, type Request, type Response } from 'express'
 import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils'
-import { storeUser } from '../models/user/users'
+import { createUser } from '../models/user/users'
 
 export const validateSignUpCredentials = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   if (_req.body == null) {
@@ -44,7 +44,7 @@ export const validateSignUpCredentials = async (_req: Request, _res: Response, n
  */
 export const signup = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
-    const result = await storeUser(_res.locals.validatedPotentialUserDetails)
+    const result = await createUser(_res.locals.validatedPotentialUserDetails)
     if (result != null && result.$response.httpResponse.statusCode === 200) {
       _res.redirect('/')
       return

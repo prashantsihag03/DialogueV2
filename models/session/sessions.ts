@@ -1,13 +1,12 @@
 import { type AWSError } from 'aws-sdk'
 import { type DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { type PromiseResult } from 'aws-sdk/lib/request'
-import DynamoDB from '../connection'
-import { SESSION_TABLE } from '../constants'
+import DynamoDB, { BASE_TABLE } from '../connection'
 import { type Session } from '../types'
 
 export const getSession = async (sessionid: string): Promise<PromiseResult<DocumentClient.GetItemOutput, AWSError>> => {
   return await DynamoDB.get({
-    TableName: SESSION_TABLE,
+    TableName: BASE_TABLE,
     Key: { sessionid },
     ConsistentRead: true,
     ProjectionExpression: 'username, sessionId'

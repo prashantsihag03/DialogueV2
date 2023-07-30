@@ -10,6 +10,7 @@ export interface IConversationInfoAttributes {
   conversationId: string
   conversationName: string
   isGroup: boolean
+  createdBy: string
   createdAt: number // is there a datetime type in dynamodb
 }
 
@@ -27,14 +28,10 @@ export interface IConversationMemberAttributes {
   JoinedAt: string // is there a datetime type in dynamodb
 }
 
-export interface IConversationInfoEntity
-  extends IBaseTable<typeof CONVERSATION_PREFIX, typeof INFO_PREFIX>,
-    IConversationInfoAttributes {}
+export interface IConversationInfoKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof INFO_PREFIX> {}
+export interface IConversationMessageKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof MESSAGE_PREFIX> {}
+export interface IConversationMemberKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof MEMBER_PREFIX> {}
 
-export interface IConversationMessageEntity
-  extends IBaseTable<typeof CONVERSATION_PREFIX, typeof MESSAGE_PREFIX>,
-    IConversationMessageAttributes {}
-
-export interface IConversationMemberEntity
-  extends IBaseTable<typeof CONVERSATION_PREFIX, typeof MEMBER_PREFIX>,
-    IConversationMemberAttributes {}
+export interface IConversationInfoEntity extends IConversationInfoKeys, IConversationInfoAttributes {}
+export interface IConversationMessageEntity extends IConversationMessageKeys, IConversationMessageAttributes {}
+export interface IConversationMemberEntity extends IConversationMemberKeys, IConversationMemberAttributes {}
