@@ -7,42 +7,34 @@ DialogueV2, as the name suggests, is a second version for Dialogue which was fir
 <details>
 <summary><b>Whats wrong with Version 1</b></summary>
 
-- In version 1, almost all code was written in vanilla Javascript with little to no emphasis on code's and project's internal structure.
-- The Frontend for version 1 was also built using vanilla javascript and was considerably difficult to read, and maintain.
-- The backend as well as frontend for version 1 had no test coverage at all.
-- All these and many more negatives from version 1 will be worked upon in version 2.
+- Poorly defined and messy structure with vanilla Javascript.
+- Difficult to read, and maintain.
+- No test coverage.
 
 </details>
 
 <details>
   <summary><b>Improvements in Version 2</b></summary>
-In version 2, I'm aiming to
 
-- use Typescript along with some refactoring to increase readability and maintainability,
-- utilise CI/CD to deploy and check for security vulnerability,
-- use dockerised DynamoDB for local development, (This will help primarily for testing and reduce manual cleanup efforts on actual DynamoDB).
-- generate C4 diagraming models for better transparency to the system,
-- move frontend to more sophisticated frameworks and tools such as React with Typescript, Redux, and other supplementary React ecosystem tools.
-- introduce and increase test coverage on the overall system.
+- Utilizing Typescript to improve readability and maintainability.
+- Improving tests coverage.
+- Introducing and utilizing CI/CD to deploy and check for security vulnerability.
+- Introducing dockerised DynamoDB for local development, (This will help primarily for testing and reduce manual cleanup efforts on actual DynamoDB).
+- Introducing C4 diagraming models for better transparency to the system.
+- Migrating from Vanilla JS to frameworks and tools such as React with Typescript, Redux, and other supplementary React ecosystem tools.
 
 </details></br>
 
 # Development Setup:
 
 - Install Node v18.14.1
-
 - Clone this repository.
-
 - Add path to the root of the cloned repository as DIALOGUEV2_HOME to environment variables such as `~/.zshrc` and source it too.
-
 - Download and Install Docker Desktop.
-
 - Download and Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-
 - Create and start dynamod-local container
 
-  > cd $DIALOGUEV2_HOME/dev/db
-
+  > cd $DIALOGUEV2_HOME/dev/db; </br>
   > docker-compose up
 
 - Setup Base Table
@@ -63,28 +55,8 @@ In version 2, I'm aiming to
 
 <br/>
 
-# Scripts
+# Executing commands
 
-- Run development server in watch mode
-
-  > npm run watch
-
-- Create production build
-
-  > npm run build
-
-- Start production build
-
-  > npm run start
+See scripts in [package.json.](/package.json)
 
 <br/>
-
-# Tests
-
-> npm run test
-
-<br/>
-
-# Lint
-
-> npm run lint
