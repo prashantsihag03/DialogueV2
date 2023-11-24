@@ -4,6 +4,7 @@ import { SESSION_COOKIE_NAME } from '../constants'
 import { getUser } from '../models/user/users'
 import { getValidatedCredentials } from '../utils/auth-utils'
 import { generateJwtToken } from '../utils/jwt-utils'
+import appLogger from '../appLogger'
 
 /**
  * Rejects request if invalid login credentials are provided. Adds validatedCredentials to the response.locals object.
@@ -52,7 +53,7 @@ export const authenticateLoginCredentials = async (
       if (isPasswordCorrect) {
         delete result.Item.password
         delete _res.locals.validatedCredentials.password
-        _res.locals.authenticated = result.Item
+        _res.locals.authenticated = result.Item?.username
         next()
         return
       }
@@ -61,7 +62,7 @@ export const authenticateLoginCredentials = async (
     _res.sendStatus(401)
     return
   } catch (e) {
-    console.error('[Error][Auth][AuthenticateUserCredentials]: {}', e)
+    appLogger.error(`Error encountered while authenticating user credentials as ${JSON.stringify(e)}`)
     _res.sendStatus(401)
   }
 }
@@ -79,6 +80,5 @@ export const login = async (_req: Request, _res: Response): Promise<void> => {
     sameSite: 'strict',
     path: '/'
   })
-  console.log(`${_res.locals.authenticated.username as string} login successful!`)
   _res.redirect('/home')
 }

@@ -1,6 +1,9 @@
 import { type Request } from 'express'
 import { SESSION_COOKIE_NAME } from '../constants'
 import { type JwtTokens } from './jwt-utils/types'
+import { type IncomingMessage } from 'http'
+import appLogger from '../appLogger'
+import { parse } from 'cookie'
 
 export const extractTokens = (_req: Request): JwtTokens | null => {
   if (
@@ -13,25 +16,32 @@ export const extractTokens = (_req: Request): JwtTokens | null => {
     }
   }
 
-  return extractSessionDataFromHeaders(_req)
+  return null
 }
 
-const extractSessionDataFromHeaders = (_req: Request): JwtTokens | null => {
+export const extractSessionDataFromHeaders = (_req: IncomingMessage): JwtTokens | null => {
   let accessToken: string | null = null
   let refreshToken: string | null = null
 
   if (_req.headers.cookie != null && _req.headers.cookie.length > 0) {
     const cookies = _req.headers.cookie.split(';')
     cookies.forEach((cookie) => {
-      const thisCookie = cookie.split('=')
-      thisCookie[0].trim()
-      thisCookie[1].trim()
-      if (thisCookie[0].toLowerCase() === 'accessToken') {
-        accessToken = thisCookie[1]
-      } else if (thisCookie[0].toLowerCase() === 'refreshToken') {
-        refreshToken = thisCookie[1]
+      const parsedCookie = parse(cookie)
+
+      // TODO: data may not exists on parsedCookie
+      const encodedData = parsedCookie[SESSION_COOKIE_NAME]
+      const encodedJson = encodedData.slice(2) // remove the 'j:' prefix
+      const decodedData = JSON.parse(encodedJson)
+
+      if (decodedData.accessToken != null) {
+        accessToken = decodedData.accessToken
+      }
+      if (decodedData.refreshToken != null) {
+        refreshToken = decodedData.refreshToken
       }
     })
+  } else {
+    appLogger.info('_req.headers.cookie failed validation for socket header')
   }
 
   return accessToken != null && refreshToken != null ? { accessToken, refreshToken } : null

@@ -7,6 +7,6 @@ export interface JwtTokens {
 
 declare module 'jsonwebtoken' {
   export interface AccessTokenJwtPayload extends jwt.JwtPayload {
-    username: string
+    userId: string
   }
 }

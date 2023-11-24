@@ -8,9 +8,11 @@ export const SESSION_PREFIX = 'SESSION#'
 
 export interface IUserProfileAttibutes {
   username: string
+  fullname: string
   password: string
   gender: string
   email: string
+  bio: string
 }
 
 export interface IUserConversationAttributes {
@@ -20,8 +22,7 @@ export interface IUserConversationAttributes {
 
 export interface IUserSessionAttributes {
   sessionId: string
-  userId: string
-  timestamp: string
+  createdAt: string
 }
 
 export interface IUserProfileKeys extends IBaseTable<typeof USER_PREFIX, typeof PROFILE_PREFIX> {}

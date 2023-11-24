@@ -19,13 +19,13 @@ export interface IConversationMessageAttributes {
   messageId: string
   senderId: string
   message: string
-  timeStamp: string // is there a datetime type in dynamodb
+  timeStamp: number // is there a datetime type in dynamodb
 }
 
 export interface IConversationMemberAttributes {
   conversationId: string
   memberId: string
-  JoinedAt: string // is there a datetime type in dynamodb
+  JoinedAt: number // is there a datetime type in dynamodb
 }
 
 export interface IConversationInfoKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof INFO_PREFIX> {}

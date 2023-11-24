@@ -1,9 +1,10 @@
 import path from 'path'
 import { SESSION_COOKIE_NAME } from '../constants'
 import { type NextFunction, type Request, type Response } from 'express'
-import { deleteSession } from '../models/session/sessions'
+import { deleteSession } from '../models/user/sessions'
 import { validateAccessToken } from '../utils/jwt-utils'
 import { extractTokens } from '../utils/session-utils'
+import appLogger from '../appLogger'
 
 const options = {
   root: path.resolve('./public')
@@ -26,17 +27,14 @@ export const validateTokens = async (_req: Request, _res: Response, next: NextFu
       if (result.decoded != null && !result.expired) {
         _res.locals.authenticated = true
         _res.locals.jwt = result.decoded
-        console.log('New Request received! SessionTokens validated successfully!')
       }
     }
 
     next()
     return
   } catch (e: any) {
-    console.error('Error occurred while validating tokens! {}', e)
-    _res.status(500)
-    _res.send('Something went wrong! Please try again later!')
-    _res.end()
+    appLogger.error('Error occurred while validating tokens!')
+    _res.status(500).send('Something went wrong! Please try again later!')
   }
 }
 
@@ -69,13 +67,13 @@ export const redirectUnAuthenticated = (_req: Request, _res: Response, next: Nex
  */
 export const logout = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (_res.locals?.sessionTokens?.refreshToken != null) {
-      await deleteSession(_res.locals.sessionTokens.refreshToken)
+    if (_res.locals?.sessionTokens?.refreshToken != null && _res.locals?.decoded?.userId != null) {
+      await deleteSession(_res.locals?.decoded?.userId, _res.locals.sessionTokens.refreshToken)
     }
     _res.clearCookie(SESSION_COOKIE_NAME)
     _res.redirect('/')
   } catch (e) {
-    console.error('[Error][Logout]: {}', e)
+    appLogger.error('Error encountered while logging user out')
     _res.status(500)
     _res.send('Something went wrong. Please try again!')
   }

@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt'
-import { type User } from '../models/types'
 import { type NextFunction, type Request, type Response } from 'express'
 import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils'
 import { createUser } from '../models/user/users'
+import { type IUserProfileAttibutes } from '../models/user/types'
 
 export const validateSignUpCredentials = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   if (_req.body == null) {
@@ -24,11 +24,13 @@ export const validateSignUpCredentials = async (_req: Request, _res: Response, n
     isValidGender(_req.body.gender)
   ) {
     const saltRounds = await bcrypt.genSalt(10)
-    const potentialUser: User = {
+    const potentialUser: IUserProfileAttibutes = {
       username: _req.body.username,
+      fullname: _req.body.fullname,
       password: await bcrypt.hash(_req.body.password, saltRounds),
       email: _req.body.email,
-      gender: _req.body.gender
+      gender: _req.body.gender,
+      bio: ''
     }
     _res.locals.validatedPotentialUserDetails = potentialUser
     next()
@@ -45,15 +47,13 @@ export const validateSignUpCredentials = async (_req: Request, _res: Response, n
 export const signup = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
     const result = await createUser(_res.locals.validatedPotentialUserDetails)
-    if (result != null && result.$response.httpResponse.statusCode === 200) {
+    if (result != null && result.$metadata.httpStatusCode === 200) {
       _res.redirect('/')
       return
     }
-    console.error('User signup failed! Query response {}', result.$response)
     _res.sendStatus(500)
     return
   } catch (e) {
-    console.error('User signup failed! Error: {}', e)
     _res.sendStatus(500)
   }
 }

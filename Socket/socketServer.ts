@@ -2,7 +2,9 @@ import helmet from 'helmet'
 import type http from 'http'
 import { Server, type ServerOptions } from 'socket.io'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
-import { onConnect, onDisconnect } from './socketEvents'
+import PresenceSystem from './PresenceSystem'
+import socketAuthMDW from './middleware'
+import SockEvents from './SockEvents'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -16,22 +18,22 @@ const socketServerOptions: Partial<ServerOptions> = {}
 export default function (httpServer: httpServer): SocketIoServer {
   const SocketIO = new Server(httpServer, socketServerOptions)
 
+  const presenceSystem = new PresenceSystem()
+  const sockEvents = new SockEvents(presenceSystem, SocketIO)
+
   // Socket Level Middlewares
   SocketIO.engine.use(helmet())
-  SocketIO.use((socket, next) => {
-    if (socket.request.headers.cookie != null) {
-      console.log('Socket conn accepted with cookie', socket.request.headers.cookie)
-      next()
-    }
-
-    console.log('Socket conn rejected! Disconnecting socket')
-    socket.disconnect()
-  })
+  SocketIO.use(socketAuthMDW)
 
   // SocketIO Events
   SocketIO.on('connection', (socket) => {
-    onConnect()
-    socket.on('disconnect', onDisconnect)
+    sockEvents.onConnect(socket)
+    socket.on('disconnect', () => {
+      sockEvents.onDisconnect(socket)
+    })
+    socket.on('message', async (data, callback) => {
+      await sockEvents.onMessage(socket, data, callback)
+    })
   })
 
   return SocketIO

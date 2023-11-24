@@ -5,27 +5,35 @@
   "main": "index.ts",
   "scripts": {
     "test": "jest",
+    "purgeDynamodb": "sh ./dev/scripts/purgeTable.sh",
+    "setupDynamodb": "sh ./dev/scripts/setupTable.sh",
     "lint": "eslint .",
     "watch": "NODE_ENV=development nodemon -r dotenv/config index.ts",
     "build": "rm -rf build/*; tsc; cp -r public ./build/public",
     "start": "NODE_ENV=production node ./build/index.js",
     "devStart": "cp .env build/.env; NODE_ENV=production node -r dotenv/config ./build/index.js",
-    "dev": "npm run build && npm run devStart"
+    "dev": "npm run build && npm run devStart",
+    "dbClean": "npm run purgeDynamodb && npm run setupDynamodb"
   },
   "keywords": [],
   "author": "Prashant Sihag",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.1237.0",
+    "@aws-sdk/client-dynamodb": "^3.421.0",
+    "@aws-sdk/lib-dynamodb": "^3.421.0",
+    "@types/morgan": "^1.9.9",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
+    "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "helmet": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
     "socket.io": "^4.6.1",
     "uuid": "^9.0.0",
-    "web-push": "^3.5.0"
+    "web-push": "^3.5.0",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

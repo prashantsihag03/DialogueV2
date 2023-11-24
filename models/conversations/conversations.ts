@@ -1,6 +1,10 @@
-import { type AWSError } from 'aws-sdk'
-import { type PromiseResult } from 'aws-sdk/lib/request'
-import DynamoDB, { BASE_TABLE } from '../connection'
+import {
+  type BatchWriteCommandOutput,
+  type GetCommandOutput,
+  type PutCommandOutput,
+  type QueryCommandOutput
+} from '@aws-sdk/lib-dynamodb'
+import DynamoDbClient, { BASE_TABLE, GSI_CONVO_TIMESTAMP } from '../connection'
 import {
   CONVERSATION_PREFIX,
   type IConversationInfoKeys,
@@ -14,7 +18,6 @@ import {
   type IConversationMessageEntity,
   type IConversationMessageAttributes
 } from './types'
-import { type DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 /**
  * Creates info item for the new conversation
@@ -22,16 +25,54 @@ import { type DocumentClient } from 'aws-sdk/clients/dynamodb'
  */
 export const createConversation = async (
   conversationInfoAttributes: IConversationInfoAttributes
-): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> => {
+): Promise<PutCommandOutput> => {
   const infoEntity: IConversationInfoEntity = {
     pkid: `${CONVERSATION_PREFIX}${conversationInfoAttributes.conversationId}`,
     skid: `${INFO_PREFIX}${conversationInfoAttributes.conversationId}`,
     ...conversationInfoAttributes
   }
-  return await DynamoDB.put({
+  return await DynamoDbClient.put({
     TableName: BASE_TABLE,
     Item: infoEntity
-  }).promise()
+  })
+}
+
+/**
+ * Creates info item for the new conversation
+ * @param conversationInfoAttributes Info attributes for the new conversation
+ */
+export const deleteConversationInfo = async (conversationId: string): Promise<PutCommandOutput> => {
+  const infoKey: IConversationInfoKeys = {
+    pkid: `${CONVERSATION_PREFIX}${conversationId}`,
+    skid: `${INFO_PREFIX}${conversationId}`
+  }
+
+  return await DynamoDbClient.delete({
+    TableName: BASE_TABLE,
+    Key: infoKey
+  })
+}
+
+export const deleteConversationMembers = async (
+  memberIds: string[],
+  conversationId: string
+): Promise<BatchWriteCommandOutput> => {
+  const deleteRequestItems = memberIds.map((memberId) => {
+    return {
+      DeleteRequest: {
+        Key: {
+          pkid: `${CONVERSATION_PREFIX}${conversationId}`,
+          skid: `${MEMBER_PREFIX}${memberId}`
+        }
+      }
+    }
+  })
+
+  return await DynamoDbClient.batchWrite({
+    RequestItems: {
+      [BASE_TABLE]: deleteRequestItems
+    }
+  })
 }
 
 /**
@@ -40,67 +81,93 @@ export const createConversation = async (
  */
 export const addConversationMember = async (
   conversationMember: IConversationMemberAttributes
-): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> => {
+): Promise<PutCommandOutput> => {
   const memberEntity: IConversationMemberEntity = {
     pkid: `${CONVERSATION_PREFIX}${conversationMember.conversationId}`,
     skid: `${MEMBER_PREFIX}${conversationMember.memberId}`,
     ...conversationMember
   }
-  return await DynamoDB.put({
+  return await DynamoDbClient.put({
     TableName: BASE_TABLE,
     Item: memberEntity
-  }).promise()
+  })
 }
 
-export const getConversationMembers = async (
-  conversationId: string
-): Promise<PromiseResult<DocumentClient.QueryOutput, AWSError>> => {
-  return await DynamoDB.query({
+export const getConversationMembers = async (conversationId: string): Promise<QueryCommandOutput> => {
+  return await DynamoDbClient.query({
     TableName: BASE_TABLE,
-    KeyConditionExpression: 'PK = :pk and starts_with(SK, :sk)',
+    KeyConditionExpression: 'pkid = :pk and begins_with(skid, :sk)',
     ExpressionAttributeValues: {
       ':pk': `${CONVERSATION_PREFIX}${conversationId}`,
       ':sk': MEMBER_PREFIX
     }
-  }).promise()
+  })
 }
 
-export const getConversationInfoById = async (
-  conversationId: string
-): Promise<PromiseResult<DocumentClient.GetItemOutput, AWSError>> => {
+export const getConversationInfoById = async (conversationId: string): Promise<GetCommandOutput> => {
   const conversationInfoKeys: IConversationInfoKeys = {
     pkid: `${CONVERSATION_PREFIX}${conversationId}`,
     skid: `${INFO_PREFIX}${conversationId}`
   }
-  return await DynamoDB.get({
+  return await DynamoDbClient.get({
     TableName: BASE_TABLE,
     Key: conversationInfoKeys
-  }).promise()
+  })
 }
 
-export const getAllMessages = async (
-  conversationId: string
-): Promise<PromiseResult<DocumentClient.QueryOutput, AWSError>> => {
-  return await DynamoDB.query({
+export const getAllMessagesByConvoId = async (conversationId: string): Promise<QueryCommandOutput> => {
+  return await DynamoDbClient.query({
     TableName: BASE_TABLE,
-    KeyConditionExpression: 'PK = :pk and starts_with(SK, :sk)',
+    KeyConditionExpression: 'pkid = :pk and begins_with(skid, :sk)',
     ExpressionAttributeValues: {
       ':pk': `${CONVERSATION_PREFIX}${conversationId}`,
       ':sk': MESSAGE_PREFIX
     }
-  }).promise()
+  })
+}
+
+export const getAllConvoMsgsSortByTimeStamp = async (conversationId: string): Promise<QueryCommandOutput> => {
+  return await DynamoDbClient.query({
+    TableName: BASE_TABLE,
+    IndexName: GSI_CONVO_TIMESTAMP,
+    KeyConditionExpression: 'conversationId = :conversationId',
+    ExpressionAttributeValues: {
+      ':conversationId': conversationId
+    }
+  })
 }
 
 export const addMessageToConversation = async (
   messageAttributes: IConversationMessageAttributes
-): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> => {
+): Promise<PutCommandOutput> => {
   const messageEntity: IConversationMessageEntity = {
     pkid: `${CONVERSATION_PREFIX}${messageAttributes.conversationId}`,
     skid: `${MESSAGE_PREFIX}${messageAttributes.messageId}`,
     ...messageAttributes
   }
-  return await DynamoDB.put({
+  return await DynamoDbClient.put({
     TableName: BASE_TABLE,
     Item: messageEntity
-  }).promise()
+  })
+}
+
+export const deleteAllMessagesByConvoId = async (
+  conversationId: string,
+  messageIds: string[]
+): Promise<BatchWriteCommandOutput> => {
+  const deleteRequestItems = messageIds.map((msgId) => {
+    return {
+      DeleteRequest: {
+        Key: {
+          pkid: `${CONVERSATION_PREFIX}${conversationId}`,
+          skid: `${MESSAGE_PREFIX}${msgId}`
+        }
+      }
+    }
+  })
+  return await DynamoDbClient.batchWrite({
+    RequestItems: {
+      [BASE_TABLE]: deleteRequestItems
+    }
+  })
 }

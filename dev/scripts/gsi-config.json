@@ -1,0 +1,37 @@
+{
+  "TableName": "dialogueV2_base",
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "conversationId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "timeStamp",
+      "AttributeType": "N"
+    }
+  ],
+  "GlobalSecondaryIndexUpdates": [
+    {
+      "Create": {
+        "IndexName": "messageTimestamp",
+        "KeySchema": [
+          {
+            "AttributeName": "conversationId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "timeStamp",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection": {
+          "ProjectionType": "ALL"
+        },
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+      }
+    }
+  ]
+}

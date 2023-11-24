@@ -7,6 +7,9 @@ import authRouter from './routes/auth'
 import conversationsRouter from './routes/conversations'
 import errorRouter from './routes/error'
 import { isAuthenticated } from './utils/auth-utils'
+import profileRouter from './routes/profile'
+import userRouter from './routes/users'
+import morgan from 'morgan'
 
 export default function (): Express.Application {
   const app: express.Application = express()
@@ -16,6 +19,7 @@ export default function (): Express.Application {
   }
 
   // App level Middlewares
+  app.use(morgan('combined')) // for HTTP request logging
   app.disable('x-powered-by')
   app.use(helmet())
   app.use(cookieParser())
@@ -43,6 +47,8 @@ export default function (): Express.Application {
 
   app.use('/', authRouter)
   app.use('/conversations', conversationsRouter)
+  app.use('/profile', profileRouter)
+  app.use('/user', userRouter)
   app.use(errorRouter)
 
   return app

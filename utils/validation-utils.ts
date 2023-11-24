@@ -24,3 +24,19 @@ export const isValidEmail = (value: string | null): boolean => {
   if (!value.includes('@') || !value.includes('.com') || value.includes('@.com')) return false
   return true
 }
+
+export const isMsgValid = (
+  conversationId: string | undefined,
+  senderUserId: string | undefined,
+  msg: string | undefined
+): boolean => {
+  if ((conversationId == null || senderUserId) == null || msg == null) {
+    return false
+  }
+
+  // check if this conversation even exists
+
+  // check if this user even exists
+
+  return true
+}

@@ -1,14 +1,19 @@
 import jwt, { type AccessTokenJwtPayload } from 'jsonwebtoken'
-import { getSession, storeSession } from '../../models/session/sessions'
+import { createSessionKeys, getSession, storeSession } from '../../models/user/sessions'
 import { type JwtTokens } from './types'
 import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from './contants'
-import { type User } from '../../models/types'
 
-export const generateJwtToken = async (user: User): Promise<JwtTokens> => {
-  const accessToken = createAccessToken(user.username)
-  const refreshToken = createRefreshToken(user.username)
+export const generateJwtToken = async (userId: string): Promise<JwtTokens> => {
+  const accessToken = createAccessToken(userId)
+  const refreshToken = createRefreshToken(userId)
 
-  await storeSession({ username: user.username, sessionid: refreshToken })
+  const sessionEntity = {
+    ...createSessionKeys(userId, refreshToken),
+    createdAt: new Date().toUTCString(),
+    sessionId: refreshToken
+  }
+
+  await storeSession(sessionEntity)
 
   return {
     accessToken,
@@ -16,7 +21,10 @@ export const generateJwtToken = async (user: User): Promise<JwtTokens> => {
   }
 }
 
-export const validateAccessToken = async (accessToken: string): Promise<{ expired: boolean, decoded: string | jwt.JwtPayload | null }> => {
+export const validateAccessToken = async (
+  accessToken: string
+  // eslint-disable-next-line @typescript-eslint/member-delimiter-style
+): Promise<{ expired: boolean; decoded: string | AccessTokenJwtPayload | null }> => {
   try {
     const decoded = jwt.verify(accessToken, JWT_SECRET) as AccessTokenJwtPayload
     return { decoded, expired: false }
@@ -32,10 +40,12 @@ export const validateAccessToken = async (accessToken: string): Promise<{ expire
 export const validateRefreshToken = async (refreshToken: string, username: string): Promise<boolean> => {
   try {
     jwt.verify(refreshToken, JWT_SECRET)
-    const session = await getSession(refreshToken)
-    if (session.Item?.sessionId != null &&
+    const session = await getSession(username, refreshToken)
+    if (
+      session.Item?.sessionId != null &&
       session.Item.sessionId === refreshToken &&
-      session.Item.username === username) {
+      session.Item.username === username
+    ) {
       return true
     }
     return false
