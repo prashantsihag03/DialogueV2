@@ -3,7 +3,10 @@ import { type NextFunction, type Request, type Response, Router } from 'express'
 import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth'
 import { getUser } from '../models/user/users'
 import appLogger from '../appLogger'
-// import { getLatestMessageByConversations } from '../middlewares/conversations'
+import { handleAsyncMdw } from '../utils/error-utils'
+import { getSingleUserSetting, getUserSettings, updateSingleUserSetting, updateUserSettings } from '../middlewares/user'
+import CustomError from '../utils/CustomError'
+import { Sendok } from '../middlewares/commons'
 
 const userRouter = Router()
 
@@ -34,5 +37,31 @@ userRouter.get('/search/:userid', async (_req: Request, _res: Response, next: Ne
     }
   ])
 })
+
+userRouter.post('/settings', handleAsyncMdw(updateUserSettings), Sendok)
+userRouter.get(
+  '/settings',
+  handleAsyncMdw(getUserSettings),
+  handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (_res.locals?.userSetting == null) {
+      throw new CustomError('Something went wrong. Please try again later', { code: 500 })
+    }
+    _res.send(_res.locals?.userSetting)
+  })
+)
+
+userRouter.get(
+  '/settings/:settingKey',
+  handleAsyncMdw(getSingleUserSetting),
+  handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    console.log('usersetting in locals is: ', _res.locals)
+    if (_res.locals?.userSetting == null) {
+      console.log('_res.locals?.userSetting is null')
+      throw new CustomError('Something went wrong. Please try again later', { code: 500 })
+    }
+    _res.send({ [_req.params.settingKey]: _res.locals?.userSetting[_req.params.settingKey] ?? true })
+  })
+)
+userRouter.post('/settings/:settingKey/:settingValue', handleAsyncMdw(updateSingleUserSetting), Sendok)
 
 export default userRouter

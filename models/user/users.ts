@@ -7,14 +7,19 @@ import {
   type IUserConversationKeys,
   type IUserConversationEntity,
   type IUserConversationAttributes,
-  type IUserProfileAttibutes
+  type IUserProfileAttibutes,
+  type IUserSettingAttibutes,
+  type IUserSettingEntity,
+  SETTING_PREFIX,
+  type IUserSettingKeys
 } from './types'
 import { CONVERSATION_PREFIX } from '../conversations/types'
 import {
   type GetCommandOutput,
   type DeleteCommandOutput,
   type PutCommandOutput,
-  type QueryCommandOutput
+  type QueryCommandOutput,
+  type UpdateCommandOutput
 } from '@aws-sdk/lib-dynamodb'
 
 export const getUser = async (userId: string): Promise<GetCommandOutput> => {
@@ -48,7 +53,74 @@ export const createUser = async (userProfile: IUserProfileAttibutes): Promise<Pu
   }
   return await DynamoDbClient.put({
     Item: profile,
+    TableName: BASE_TABLE,
+    ConditionExpression: 'attribute_not_exists(pkid)'
+  })
+}
+
+export const getUserSettingsDb = async (userId: string): Promise<GetCommandOutput> => {
+  const keys: IUserSettingKeys = {
+    pkid: `${USER_PREFIX}${userId}`,
+    skid: `${SETTING_PREFIX}${userId}`
+  }
+  return await DynamoDbClient.get({
+    TableName: BASE_TABLE,
+    Key: keys,
+    ConsistentRead: true
+  })
+}
+
+export const getUserSettingDb = async (
+  userId: string,
+  settingKey: keyof IUserSettingAttibutes
+): Promise<GetCommandOutput> => {
+  const keys: IUserSettingKeys = {
+    pkid: `${USER_PREFIX}${userId}`,
+    skid: `${SETTING_PREFIX}${userId}`
+  }
+  return await DynamoDbClient.get({
+    TableName: BASE_TABLE,
+    Key: keys,
+    ConsistentRead: true,
+    AttributesToGet: [settingKey]
+  })
+}
+
+export const updateAllUserSettingDb = async (
+  userid: string,
+  userSetting: IUserSettingAttibutes
+): Promise<UpdateCommandOutput> => {
+  const setting: IUserSettingEntity = {
+    pkid: `${USER_PREFIX}${userid}`,
+    skid: `${SETTING_PREFIX}${userid}`,
+    ...userSetting
+  }
+  return await DynamoDbClient.put({
+    Item: setting,
     TableName: BASE_TABLE
+  })
+}
+
+export const updateSingleUserSettingDb = async (
+  userid: string,
+  userSettingKey: string,
+  userSettingValue: string
+): Promise<UpdateCommandOutput> => {
+  const userSettingDbKeys: IUserSettingKeys = {
+    pkid: `${USER_PREFIX}${userid}`,
+    skid: `${SETTING_PREFIX}${userid}`
+  }
+  return await DynamoDbClient.update({
+    Key: userSettingDbKeys,
+    TableName: BASE_TABLE,
+    UpdateExpression: 'SET #attr1 = :val1',
+    ConditionExpression: 'attribute_exists(pkid)',
+    ExpressionAttributeNames: {
+      '#attr1': userSettingKey
+    },
+    ExpressionAttributeValues: {
+      ':val1': userSettingValue
+    }
   })
 }
 

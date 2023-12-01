@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from 'express'
 import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth'
-import { getAllMembersByConversation } from '../middlewares/converdsations/conversations'
+import { getAllMembersByConversation } from '../middlewares/conversations/conversations'
 
 const membersRouter = Router()
 

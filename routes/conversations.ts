@@ -8,7 +8,7 @@ import {
   getLatestMessageByConversations,
   startNewConversation,
   transformConversationDataIntoQuickView
-} from '../middlewares/converdsations/conversations'
+} from '../middlewares/conversations/conversations'
 import {
   deleteAllMessagesByConversationId,
   getAllMessages,

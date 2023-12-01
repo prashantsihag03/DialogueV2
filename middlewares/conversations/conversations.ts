@@ -171,9 +171,14 @@ export const startNewConversation = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
     if (_req.body.isGroup == null) throw new CustomError('Missing required information.', { code: 400 })
     if (_req.body.isGroup === true) throw new CustomError('Group conversations are not yet supported!', { code: 501 })
-    if (_req.body.conversationUserId == null || _req.body.conversationUserId === _res.locals.jwt.username) {
-      throw new CustomError('Invalid request body. Please provide valid values for all required properties', {
-        code: 500
+    if (_req.body.conversationUserId == null) {
+      throw new CustomError('Missing requried properties!', {
+        code: 400
+      })
+    }
+    if (_req.body.conversationUserId === _res.locals.jwt.username) {
+      throw new CustomError('Creating conversation with yourself is not supported yet!', {
+        code: 400
       })
     }
 
