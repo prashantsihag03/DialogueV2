@@ -54,9 +54,7 @@ userRouter.get(
   '/settings/:settingKey',
   handleAsyncMdw(getSingleUserSetting),
   handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    console.log('usersetting in locals is: ', _res.locals)
     if (_res.locals?.userSetting == null) {
-      console.log('_res.locals?.userSetting is null')
       throw new CustomError('Something went wrong. Please try again later', { code: 500 })
     }
     _res.send({ [_req.params.settingKey]: _res.locals?.userSetting[_req.params.settingKey] ?? true })

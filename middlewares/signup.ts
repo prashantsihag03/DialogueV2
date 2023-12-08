@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import { type NextFunction, type Request, type Response } from 'express'
 import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils'
-import { createUser } from '../models/user/users'
+import { createUser, updateAllUserSettingDb } from '../models/user/users'
 import { type IUserProfileAttibutes } from '../models/user/types'
 import appLogger from '../appLogger'
 import { handleAsyncMdw } from '../utils/error-utils'
@@ -37,10 +37,21 @@ export const validateSignUpCredentials = handleAsyncMdw(
  * Assumes details are available in request body and have been validated.
  */
 export const signup = handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  const result = await createUser(_res.locals.validatedPotentialUserDetails)
-  if (result.$metadata.httpStatusCode !== 200) {
+  const userProfileResult = await createUser(_res.locals.validatedPotentialUserDetails)
+  if (userProfileResult.$metadata.httpStatusCode !== 200) {
     throw new CustomError('New user couldnt be created', { code: 500 })
   }
+
+  const userSettingResult = await updateAllUserSettingDb(_res.locals.validatedPotentialUserDetails.username, {
+    enterSendsMessage: true,
+    greetMeEverytime: true,
+    openExistingConversation: true
+  })
+
+  if (userSettingResult.$metadata.httpStatusCode !== 200) {
+    throw new CustomError('New user couldnt be created', { code: 500 })
+  }
+
   appLogger.info('New user signed up successfully.')
   _res.redirect('/')
 })

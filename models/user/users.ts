@@ -58,6 +58,19 @@ export const createUser = async (userProfile: IUserProfileAttibutes): Promise<Pu
   })
 }
 
+export const updateUser = async (userProfile: IUserProfileAttibutes): Promise<PutCommandOutput> => {
+  const profile: IUserProfileEntity = {
+    pkid: `${USER_PREFIX}${userProfile.username}`,
+    skid: `${PROFILE_PREFIX}${userProfile.username}`,
+    ...userProfile
+  }
+  return await DynamoDbClient.put({
+    Item: profile,
+    TableName: BASE_TABLE,
+    ConditionExpression: 'attribute_exists(pkid)'
+  })
+}
+
 export const getUserSettingsDb = async (userId: string): Promise<GetCommandOutput> => {
   const keys: IUserSettingKeys = {
     pkid: `${USER_PREFIX}${userId}`,
@@ -110,6 +123,18 @@ export const updateSingleUserSettingDb = async (
     pkid: `${USER_PREFIX}${userid}`,
     skid: `${SETTING_PREFIX}${userid}`
   }
+  console.log({
+    Key: userSettingDbKeys,
+    TableName: BASE_TABLE,
+    UpdateExpression: 'SET #attr1 = :val1',
+    ConditionExpression: 'attribute_exists(pkid)',
+    ExpressionAttributeNames: {
+      '#attr1': userSettingKey
+    },
+    ExpressionAttributeValues: {
+      ':val1': userSettingValue
+    }
+  })
   return await DynamoDbClient.update({
     Key: userSettingDbKeys,
     TableName: BASE_TABLE,

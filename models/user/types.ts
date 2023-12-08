@@ -14,6 +14,7 @@ export interface IUserProfileAttibutes {
   gender: string
   email: string
   bio: string
+  profileImg?: string
 }
 
 export interface IUserConversationAttributes {
@@ -29,6 +30,7 @@ export interface IUserSessionAttributes {
 export interface IUserSettingAttibutes {
   greetMeEverytime: boolean
   enterSendsMessage: boolean
+  openExistingConversation: boolean
 }
 
 export interface IUserProfileKeys extends IBaseTable<typeof USER_PREFIX, typeof PROFILE_PREFIX> {}

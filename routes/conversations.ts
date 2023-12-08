@@ -33,8 +33,9 @@ conversationsRouter.get(
   transformConversationDataIntoQuickView
 )
 
-conversationsRouter.post('/', startNewConversation)
+conversationsRouter.post('/', getUserConversations, startNewConversation)
 conversationsRouter.post('/message', storeNewMessage)
+
 conversationsRouter.get(
   '/:conversationId/messages',
   (_req: Request, _res: Response, next: NextFunction): void => {
@@ -50,6 +51,7 @@ conversationsRouter.get(
 )
 
 conversationsRouter.delete('/:conversationId/messages', deleteAllMessagesByConversationId)
+
 conversationsRouter.delete(
   '/:conversationId',
   handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {

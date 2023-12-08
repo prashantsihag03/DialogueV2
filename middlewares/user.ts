@@ -33,8 +33,9 @@ export const getUserSettings = async (_req: Request, _res: Response, next: NextF
     throw new CustomError("Couldn't retrieve user setting.", { code: 500 })
   }
   const userSetting: IUserSettingAttibutes = {
-    enterSendsMessage: Boolean(settingResp.Item?.enterSendsMessage),
-    greetMeEverytime: Boolean(settingResp.Item?.greetMeEverytime)
+    enterSendsMessage: settingResp.Item?.enterSendsMessage === 'true',
+    greetMeEverytime: settingResp.Item?.greetMeEverytime === 'true',
+    openExistingConversation: settingResp.Item?.openExistingConversation === 'true'
   }
   _res.locals.userSetting = userSetting
   next()
@@ -54,7 +55,6 @@ export const getSingleUserSetting = async (_req: Request, _res: Response, next: 
   if (settingResp.$metadata.httpStatusCode !== 200) {
     throw new CustomError("Couldn't retrieve user setting.", { code: 500 })
   }
-  console.log('Retrieved user settings Item from db is: ', settingResp.Item)
   _res.locals.userSetting = {}
   _res.locals.userSetting[_req.params.settingKey] =
     settingResp.Item != null ? settingResp.Item[_req.params.settingKey] : null
@@ -64,7 +64,8 @@ export const getSingleUserSetting = async (_req: Request, _res: Response, next: 
 export const updateUserSettings = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   const settingResp = await updateAllUserSettingDb(_res.locals.jwt.username, {
     enterSendsMessage: _req.body?.enterSendsMessage,
-    greetMeEverytime: _req.body?.greetMeEverytime
+    greetMeEverytime: _req.body?.greetMeEverytime,
+    openExistingConversation: _req.body?.openExistingConversation
   })
   if (settingResp.$metadata.httpStatusCode !== 200) {
     throw new CustomError("Couldn't retrieve user setting.", { code: 500 })

@@ -37,8 +37,6 @@ class SockEvents {
   }
 
   async onMessage(socket: SocketRef, data: any, ackCallback: any): Promise<void> {
-    appLogger.info(`Socket event 'Message' received with data: ${JSON.stringify(data)}`)
-
     if (
       socket.data.jwt.username == null ||
       socket.data.refreshToken == null ||

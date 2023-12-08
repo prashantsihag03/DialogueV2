@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/space-before-function-paren */
 interface CustomErrorDetails {
   code: number
+  internalMsg?: string
 }
 
 class CustomError extends Error {

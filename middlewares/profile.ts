@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { createUser, getUser } from '../models/user/users'
+import { getUser, updateUser } from '../models/user/users'
 import CustomError from '../utils/CustomError'
 import appLogger from '../appLogger'
 
@@ -16,7 +16,8 @@ export const getProfile = async (_req: Request, _res: Response, next: NextFuncti
     email: _res.locals.jwt.username === response.Item.username ? response.Item.email : null,
     profileImgSrc: '',
     lastOnlineUTCDateTime: '',
-    bio: response.Item.bio ?? ''
+    bio: response.Item.bio ?? '',
+    profileImg: response.Item.profileImg ?? null
   })
 }
 
@@ -27,13 +28,14 @@ export const updateProfile = async (_req: Request, _res: Response, next: NextFun
       throw new CustomError('User couldnt be found.', { code: 404 })
     }
 
-    const updateUserResponse = await createUser({
+    const updateUserResponse = await updateUser({
       email: _res.locals.newProfileData.email ?? response.Item.email,
       fullname: _res.locals.newProfileData.fullname ?? response.Item.fullname,
       gender: response.Item.gender,
       password: response.Item.password,
       username: response.Item.username,
-      bio: _res.locals.newProfileData.bio ?? response.Item.bio
+      bio: _res.locals.newProfileData.bio ?? response.Item.bio,
+      profileImg: _res.locals.newProfileData.profileImg ?? response.Item.profileImg
     })
 
     if (updateUserResponse.$metadata.httpStatusCode !== 200) {

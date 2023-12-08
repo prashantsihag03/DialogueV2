@@ -4,12 +4,12 @@ import CustomError from './CustomError'
 
 export const handleMdwErrors = (err: any, _res: Response): void => {
   if (err instanceof CustomError) {
-    appLogger.error(`${err.message}: ${JSON.stringify(err.stack)}`)
-    _res.status(err.details.code).send(err.message)
+    appLogger.error(`${err.message}:${err.details.internalMsg ?? ''}:${JSON.stringify(err.stack)}`)
+    _res.status(err.details.code).send({ error: err.message })
     return
   }
   appLogger.error(`${JSON.stringify(err.stack)}`)
-  _res.status(500).send('Something went wrong. Please try again later')
+  _res.status(500).send({ error: 'Something went wrong. Please try again later' })
 }
 
 export const handleAsyncMdw = (

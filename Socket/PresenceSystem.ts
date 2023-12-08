@@ -27,9 +27,7 @@ class PresenceSystem {
       [connectionId]: userSocketSession
     }
 
-    appLogger.info(
-      `Presence recorded for ${userId} with id ${connectionId} and data ${JSON.stringify(userSocketSession)}`
-    )
+    appLogger.info(`Presence recorded for ${userId} with id ${connectionId}`)
   }
 
   /**

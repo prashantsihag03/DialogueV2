@@ -42,7 +42,8 @@ aws dynamodb update-table \
     --global-secondary-index-updates \
         "[{\"Create\":{\"IndexName\": \"conversation-timestamp-message\",\"KeySchema\":[{\"AttributeName\":\"conversationId\",\"KeyType\":\"HASH\"},{\"AttributeName\":\"timeStamp\",\"KeyType\":\"RANGE\"}], \
         \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 5, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]" \
-    --endpoint-url $DB_ENDPOINT
+    --endpoint-url $DB_ENDPOINT \
+    --output text > /dev/null
 
 ###### Below code queries GSI for a particular conversation id
 # aws dynamodb query \

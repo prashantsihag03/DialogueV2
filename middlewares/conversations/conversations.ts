@@ -124,6 +124,7 @@ export const getConversationInfo = async (_req: Request, _res: Response, next: N
   }
 
   const conversationInfos = []
+  // TODO: Utilise bulk/batch fetching here
   for (let index = 0; index < _res.locals.conversationIds.length; index++) {
     const response = await getConversationInfoById(_res.locals.conversationIds[index])
     if (response.$metadata.httpStatusCode === 200 && response.Item != null) {
@@ -178,6 +179,22 @@ export const startNewConversation = handleAsyncMdw(
     }
     if (_req.body.conversationUserId === _res.locals.jwt.username) {
       throw new CustomError('Creating conversation with yourself is not supported yet!', {
+        code: 400
+      })
+    }
+    if (_res.locals.userConversations == null) {
+      throw new CustomError('Something went wrong. Please try again later!', {
+        code: 400,
+        internalMsg: 'Expected list of user conversations to be available in response.locals object but found nothing.'
+      })
+    }
+
+    const userConvoExists = _res.locals.userConversations.find(
+      (userConvo: { conversationName: any }) => userConvo.conversationName === _req.body.conversationUserId
+    )
+
+    if (userConvoExists != null) {
+      throw new CustomError('Conversation already exists!', {
         code: 400
       })
     }
@@ -260,7 +277,6 @@ export const deleteConversationMdw = handleAsyncMdw(
     }
 
     if (members.Items.length > 0) {
-      appLogger.info('Members detected. Deleting user conversations ...')
       for (let index = 0; index < members.Items.length; index++) {
         const member = members.Items[index]
         if (member.memberId == null) {
@@ -272,7 +288,6 @@ export const deleteConversationMdw = handleAsyncMdw(
         }
       }
 
-      appLogger.info('Members detected. Deleting conversation members ...')
       const convoDelMembersResp = await deleteConversationMembers(
         members.Items.map((item) => item.memberId),
         _req.params.conversationId
@@ -283,7 +298,6 @@ export const deleteConversationMdw = handleAsyncMdw(
     }
 
     // delete conversation info
-    appLogger.info('Deleting conversation info')
     const convoDelInfoResp = await deleteConversationInfo(_req.params.conversationId)
     // delete conversation members
 
@@ -300,7 +314,6 @@ export const deleteConversationMdw = handleAsyncMdw(
 
     // delete conversation messages
     if (allMsgResp.Items.length > 0) {
-      appLogger.info('Messages detected. Deleting messages')
       const convoDelMsgConvoId = await deleteAllMessagesByConvoId(
         _req.params.conversationId,
         allMsgResp.Items.map((item) => item.messageId)
