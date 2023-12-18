@@ -1,5 +1,16 @@
 version: '3.8'
 services:
+  dialogue-v2-app: 
+    depends_on:
+      - dynamodb-local
+    build:
+      context: ../.././
+      dockerfile: Dockerfile
+    container_name: dialogue-v2-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../../.env
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
@@ -9,3 +20,4 @@ services:
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
+  

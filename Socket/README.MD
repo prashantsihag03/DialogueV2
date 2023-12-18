@@ -28,7 +28,7 @@ Please see the following example to illustrate how this would look together with
         },
         "connnectionId-2": {
             "refreshTokenId": "example2"
-        }
+        },
     },
     "userId-2": {
         "connnectionId-1": {
