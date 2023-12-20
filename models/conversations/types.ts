@@ -20,6 +20,7 @@ export interface IConversationMessageAttributes {
   senderId: string
   message: string
   timeStamp: number // is there a datetime type in dynamodb
+  file?: string
 }
 
 export interface IConversationMemberAttributes {

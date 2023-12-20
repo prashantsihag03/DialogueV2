@@ -21,7 +21,15 @@ export default function (): Express.Application {
   // App level Middlewares
   app.use(morgan('combined')) // for HTTP request logging
   app.disable('x-powered-by')
-  app.use(helmet())
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          'script-src': ["'self'", 'https://cdnjs.cloudflare.com']
+        }
+      }
+    })
+  )
   app.use(cookieParser())
   app.use(express.json())
   app.use(express.static(path.join(__dirname, 'public')))

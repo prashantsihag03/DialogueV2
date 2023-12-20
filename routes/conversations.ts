@@ -17,6 +17,18 @@ import {
 } from '../middlewares/messages'
 import { handleAsyncMdw } from '../utils/error-utils'
 import CustomError from '../utils/CustomError'
+import multer from 'multer'
+import path from 'path'
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads/')) // Define the destination folder for uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${String(file.fieldname)}-${Date.now()}${path.extname(file.originalname)}`)
+  }
+})
+const upload = multer({ storage })
 
 const conversationsRouter = Router()
 
@@ -34,8 +46,7 @@ conversationsRouter.get(
 )
 
 conversationsRouter.post('/', getUserConversations, startNewConversation)
-conversationsRouter.post('/message', storeNewMessage)
-
+conversationsRouter.post('/message', upload.single('img'), storeNewMessage)
 conversationsRouter.get(
   '/:conversationId/messages',
   (_req: Request, _res: Response, next: NextFunction): void => {
@@ -51,7 +62,6 @@ conversationsRouter.get(
 )
 
 conversationsRouter.delete('/:conversationId/messages', deleteAllMessagesByConversationId)
-
 conversationsRouter.delete(
   '/:conversationId',
   handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {

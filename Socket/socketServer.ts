@@ -34,6 +34,12 @@ export default function (httpServer: httpServer): SocketIoServer {
     socket.on('message', async (data, callback) => {
       await sockEvents.onMessage(socket, data, callback)
     })
+    socket.on('initiateCall', async (data, callback) => {
+      await sockEvents.onOffer(socket, data, callback, SocketIO)
+    })
+    socket.on('answerCall', async (data, callback) => {
+      await sockEvents.onAnswer(socket, data, callback, SocketIO)
+    })
   })
 
   return SocketIO

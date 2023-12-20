@@ -10,6 +10,7 @@ import { type IConversationMessageAttributes } from '../models/conversations/typ
 import { isMsgValid } from '../utils/validation-utils'
 import CustomError from '../utils/CustomError'
 import appLogger from '../appLogger'
+import fs from 'node:fs/promises'
 
 interface CleanedMessage {
   messageId: string
@@ -17,6 +18,7 @@ interface CleanedMessage {
   timestamp: string
   source: 'outgoing' | 'incoming'
   text: string
+  file?: string
 }
 
 export const getAllMessages = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -50,29 +52,38 @@ export const transformDynamoMsg = (_req: Request, _res: Response, next: NextFunc
       senderUserId: _res.locals.messages[_res.locals.conversationId][index].senderId,
       source: senderId === _res.locals.jwt.username ? 'outgoing' : 'incoming',
       text: _res.locals.messages[_res.locals.conversationId][index].message,
-      timestamp: _res.locals.messages[_res.locals.conversationId][index].timeStamp
+      timestamp: _res.locals.messages[_res.locals.conversationId][index].timeStamp,
+      file: _res.locals.messages[_res.locals.conversationId][index].file
     })
   }
 
-  appLogger.info(`Transformed messages for conversationid are ${JSON.stringify(transformedMessages)}`)
   _res.send(transformedMessages)
 }
 
 export const storeNewMessage = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text)) {
-      throw new CustomError('Missing required information', { code: 400 })
+    if (!isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text, _req.file)) {
+      throw new CustomError('Invalid message provided!', { code: 400 })
     }
+    let fileContents = null
+    if (_req.file != null) {
+      fileContents = await fs.readFile(_req.file.path)
+    }
+
     const newMessage: IConversationMessageAttributes = {
       conversationId: _req.body.conversationId,
       messageId: `message-${uuidv4()}`,
       timeStamp: Date.now(),
       message: _req.body.text,
-      senderId: _req.body.senderUserId
+      senderId: _req.body.senderUserId,
+      file: fileContents != null ? fileContents.toString('base64') : undefined
+    }
+
+    if (_req.file != null) {
+      await fs.unlink(_req.file.path)
     }
 
     const response3 = await addMessageToConversation(newMessage)
-
     if (response3.$metadata.httpStatusCode !== 200) {
       throw new CustomError('DB Error while adding message to conversation', { code: 500 })
     }
