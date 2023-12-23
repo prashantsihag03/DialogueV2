@@ -1,4 +1,4 @@
-function checkWorker () {
+function checkWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistration('/').then((registration) => {
       if (registration == undefined) {
@@ -32,6 +32,10 @@ let formActive = 'login'
 const signupContainer = document.getElementById('signup-container')
 const loginContainer = document.getElementById('login-container')
 
+if (window.innerWidth < '800') {
+  signupContainer.style.display = 'none'
+}
+
 document.getElementById('logo').addEventListener('click', () => {
   location.reload()
 })
@@ -39,21 +43,23 @@ document.getElementById('logo').addEventListener('click', () => {
 window.addEventListener('resize', () => {
   if (window.innerWidth >= '800') {
     signupContainer.style.height = '100%'
+    signupContainer.style.display = 'flex'
     loginContainer.style.height = '100%'
+    loginContainer.style.display = 'flex'
   } else {
     if (formActive == 'login') {
       // display login
       loginContainer.style.height = '100%'
-      signupContainer.style.height = '0%'
+      loginContainer.style.display = 'flex'
+      signupContainer.style.display = 'none'
       toggleFormBtn.innerHTML = 'Signup'
-      toggleFormBtn.style.backgroundColor = 'steelblue'
       formActive = 'login'
     } else {
       // display signup
       signupContainer.style.height = '100%'
-      loginContainer.style.height = '0%'
+      signupContainer.style.display = 'flex'
+      loginContainer.style.display = 'none'
       toggleFormBtn.innerHTML = 'Login'
-      toggleFormBtn.style.backgroundColor = 'lightcoral'
       formActive = 'signup'
     }
   }
@@ -152,20 +158,20 @@ signup.addEventListener('submit', (e) => {
 
 toggleFormBtn.addEventListener('click', toggleForm)
 
-function toggleForm () {
+function toggleForm() {
   if (formActive == 'login') {
     // display signup
     signupContainer.style.height = '100%'
-    loginContainer.style.height = '0%'
+    signupContainer.style.display = 'flex'
+    loginContainer.style.display = 'none'
     toggleFormBtn.innerHTML = 'Login'
-    toggleFormBtn.style.backgroundColor = 'lightcoral'
     formActive = 'signup'
   } else {
     // display login
     loginContainer.style.height = '100%'
-    signupContainer.style.height = '0%'
+    loginContainer.style.display = 'flex'
+    signupContainer.style.display = 'none'
     toggleFormBtn.innerHTML = 'Signup'
-    toggleFormBtn.style.backgroundColor = 'steelblue'
     formActive = 'login'
   }
 }
