@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/indent */
-import { type IBaseTable } from '../types'
+import { type IBaseTable } from '../types.js'
 
 export const CONVERSATION_PREFIX = 'CONVERSATION#'
 export const INFO_PREFIX = 'INFO#'

@@ -1,5 +1,4 @@
-import appLogger from '../appLogger'
-import { MAX_IMG_SIZE_BYTES, MINIMUM_PASSWORD_LENGTH, MINIMUM_USERNAME_LENGTH } from '../constants'
+import { MINIMUM_PASSWORD_LENGTH, MINIMUM_USERNAME_LENGTH } from '../constants.js'
 
 export const isValidPassword = (value: string | null): boolean => {
   if (value == null) return false
@@ -30,12 +29,12 @@ export const isMsgValid = (
   conversationId: string | undefined,
   senderUserId: string | undefined,
   msg: string | undefined,
-  file?: Express.Multer.File
+  file?: string
 ): boolean => {
-  if (file != null && file.size > MAX_IMG_SIZE_BYTES) {
-    appLogger.warn('Message invalidated due to file size exceeding maximum file size limit')
-    return false
-  }
+  // if (file != null && file.size > MAX_IMG_SIZE_BYTES) {
+  //   appLogger.warn('Message invalidated due to file size exceeding maximum file size limit')
+  //   return false
+  // }
   if ((conversationId == null || senderUserId) == null || msg == null) {
     return false
   }

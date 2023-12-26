@@ -13,7 +13,7 @@
   "GlobalSecondaryIndexUpdates": [
     {
       "Create": {
-        "IndexName": "messageTimestamp",
+        "IndexName": "conversation-timestamp-message",
         "KeySchema": [
           {
             "AttributeName": "conversationId",

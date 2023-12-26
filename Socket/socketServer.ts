@@ -2,9 +2,10 @@ import helmet from 'helmet'
 import type http from 'http'
 import { Server, type ServerOptions } from 'socket.io'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
-import PresenceSystem from './PresenceSystem'
-import socketAuthMDW from './middleware'
-import SockEvents from './SockEvents'
+import PresenceSystem from './PresenceSystem.js'
+import socketAuthMDW from './middleware.js'
+import SockEvents from './SockEvents.js'
+import { handleSocketEvent } from '../utils/error-utils.js'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -31,9 +32,12 @@ export default function (httpServer: httpServer): SocketIoServer {
     socket.on('disconnect', () => {
       sockEvents.onDisconnect(socket)
     })
-    socket.on('message', async (data, callback) => {
-      await sockEvents.onMessage(socket, data, callback)
-    })
+    socket.on(
+      'message',
+      handleSocketEvent(async (data, callback) => {
+        await sockEvents.onMessage(socket, data, callback)
+      })
+    )
     socket.on('initiateCall', async (data, callback) => {
       await sockEvents.onOffer(socket, data, callback, SocketIO)
     })

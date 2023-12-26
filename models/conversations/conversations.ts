@@ -4,7 +4,7 @@ import {
   type PutCommandOutput,
   type QueryCommandOutput
 } from '@aws-sdk/lib-dynamodb'
-import DynamoDbClient, { BASE_TABLE, GSI_CONVO_TIMESTAMP } from '../connection'
+import DynamoDbClient, { BASE_TABLE, GSI_CONVO_TIMESTAMP, clientS3 } from '../connection.js'
 import {
   CONVERSATION_PREFIX,
   type IConversationInfoKeys,
@@ -17,7 +17,8 @@ import {
   MESSAGE_PREFIX,
   type IConversationMessageEntity,
   type IConversationMessageAttributes
-} from './types'
+} from './types.js'
+import { GetObjectCommand, PutObjectCommand, type GetObjectCommandOutput } from '@aws-sdk/client-s3'
 
 /**
  * Creates info item for the new conversation
@@ -170,4 +171,24 @@ export const deleteAllMessagesByConvoId = async (
       [BASE_TABLE]: deleteRequestItems
     }
   })
+}
+
+export const getMsgObject = async (objectKey: string): Promise<GetObjectCommandOutput> => {
+  const command = new GetObjectCommand({
+    Bucket: 'dialogue-v2',
+    Key: objectKey
+  })
+  console.log('Sending data')
+  return await clientS3.send(command)
+  // The Body object also has 'transformToByteArray' and 'transformToWebStream' methods.
+  // const str = await response.Body.transformToString()
+}
+
+export const storeMsgObject = async (objectKey: string, object: any): Promise<GetObjectCommandOutput> => {
+  const command = new PutObjectCommand({
+    Bucket: 'dialogue-v2',
+    Key: objectKey,
+    Body: object
+  })
+  return await clientS3.send(command)
 }

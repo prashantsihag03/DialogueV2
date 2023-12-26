@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt'
 import { type NextFunction, type Request, type Response } from 'express'
-import { SESSION_COOKIE_NAME } from '../constants'
-import { getUser } from '../models/user/users'
-import { getValidatedCredentials } from '../utils/auth-utils'
-import { generateJwtToken } from '../utils/jwt-utils'
-import appLogger from '../appLogger'
+import { SESSION_COOKIE_NAME } from '../constants.js'
+import { getUser } from '../models/user/users.js'
+import { getValidatedCredentials } from '../utils/auth-utils.js'
+import { generateJwtToken } from '../utils/jwt-utils/index.js'
+import appLogger from '../appLogger.js'
 
 /**
  * Rejects request if invalid login credentials are provided. Adds validatedCredentials to the response.locals object.

@@ -1,5 +1,5 @@
 import { type Response } from 'express'
-import { isValidPassword, isValidUsername } from './validation-utils'
+import { isValidPassword, isValidUsername } from './validation-utils.js'
 
 export interface ValidatedCredentials {
   username: string
@@ -17,6 +17,7 @@ export const isAuthenticated = (_res: Response): boolean => {
   return _res.locals.authenticated != null && _res.locals.authenticated === true
 }
 
+// eslint-disable-next-line @typescript-eslint/member-delimiter-style
 export const getAuthenticatedUserData = (_res: Response): { sessionId: string; username: string } | null => {
   if (!isAuthenticated(_res)) return null
   return {

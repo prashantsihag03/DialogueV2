@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type NextFunction, type Request, type Response, Router } from 'express'
-import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth'
-import { getProfile, updateProfile } from '../middlewares/profile'
+import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth.js'
+import { getProfile, updateProfile } from '../middlewares/profile.js'
 import multer from 'multer'
 import path from 'path'
-import appLogger from '../appLogger'
+import appLogger from '../appLogger.js'
 import fs from 'node:fs/promises'
 
 const profileRouter = Router()

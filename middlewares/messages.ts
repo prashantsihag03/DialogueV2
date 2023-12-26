@@ -4,12 +4,13 @@ import {
   addMessageToConversation,
   deleteAllMessagesByConvoId,
   getAllMessagesByConvoId,
-  getAllConvoMsgsSortByTimeStamp
-} from '../models/conversations/conversations'
-import { type IConversationMessageAttributes } from '../models/conversations/types'
-import { isMsgValid } from '../utils/validation-utils'
-import CustomError from '../utils/CustomError'
-import appLogger from '../appLogger'
+  getAllConvoMsgsSortByTimeStamp,
+  getMsgObject
+} from '../models/conversations/conversations.js'
+import { type IConversationMessageAttributes } from '../models/conversations/types.js'
+import { isMsgValid } from '../utils/validation-utils.js'
+import CustomError from '../utils/CustomError.js'
+import appLogger from '../appLogger.js'
 import fs from 'node:fs/promises'
 
 interface CleanedMessage {
@@ -32,7 +33,36 @@ export const getAllMessages = async (_req: Request, _res: Response, next: NextFu
   next()
 }
 
-export const transformDynamoMsg = (_req: Request, _res: Response, next: NextFunction): void => {
+export const getMsgAttachment = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  if (_req.params.attachmentId == null || _req.params.conversationId == null || _req.params.messageId == null) {
+    throw new CustomError('Missing required parameters.', {
+      code: 400,
+      internalMsg: 'AttachmentId and/or conversationId missing in request parameters'
+    })
+  }
+  let fileContents
+
+  try {
+    const response = await getMsgObject(_req.params.attachmentId)
+    if (response.$metadata.httpStatusCode === 200 && response.Body != null) {
+      fileContents = await response.Body.transformToString('base64')
+      _res.locals.msgAttachment = {
+        status: 'Successful',
+        data: fileContents
+      }
+      next()
+    }
+  } catch (e) {
+    // intentionally left blank
+  }
+  _res.locals.msgAttachment = {
+    status: 'Resource not found.',
+    data: null
+  }
+  next()
+}
+
+export const transformDynamoMsg = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   if (
     _res.locals.messages == null ||
     _res.locals.conversationId == null ||
@@ -46,6 +76,7 @@ export const transformDynamoMsg = (_req: Request, _res: Response, next: NextFunc
   const transformedMessages: CleanedMessage[] = []
   for (let index = 0; index < _res.locals.messages[_res.locals.conversationId].length; index++) {
     const senderId = _res.locals.messages[_res.locals.conversationId][index].senderId
+    const fileContents = _res.locals.messages[_res.locals.conversationId][index].file
     transformedMessages.push({
       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       messageId: _res.locals.messages[_res.locals.conversationId][index].messageId + '',
@@ -53,21 +84,26 @@ export const transformDynamoMsg = (_req: Request, _res: Response, next: NextFunc
       source: senderId === _res.locals.jwt.username ? 'outgoing' : 'incoming',
       text: _res.locals.messages[_res.locals.conversationId][index].message,
       timestamp: _res.locals.messages[_res.locals.conversationId][index].timeStamp,
-      file: _res.locals.messages[_res.locals.conversationId][index].file
+      file: fileContents != null ? fileContents : undefined
     })
   }
 
   _res.send(transformedMessages)
 }
 
+// TODO: Fix file uploads. Only return file name as response. Specify unique file name via multer
 export const storeNewMessage = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text, _req.file)) {
+    if (!isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text)) {
       throw new CustomError('Invalid message provided!', { code: 400 })
     }
     let fileContents = null
     if (_req.file != null) {
-      fileContents = await fs.readFile(_req.file.path)
+      const response = await getMsgObject(_req.file.fieldname)
+      if (response.$metadata.httpStatusCode !== 200 || response.Body == null) {
+        throw new CustomError('Couldnt retrieve the uploaded object from s3', { code: 500 })
+      }
+      fileContents = await response.Body.transformToString('base64')
     }
 
     const newMessage: IConversationMessageAttributes = {
@@ -76,7 +112,7 @@ export const storeNewMessage = async (_req: Request, _res: Response, next: NextF
       timeStamp: Date.now(),
       message: _req.body.text,
       senderId: _req.body.senderUserId,
-      file: fileContents != null ? fileContents.toString('base64') : undefined
+      file: fileContents != null ? fileContents : undefined
     }
 
     if (_req.file != null) {

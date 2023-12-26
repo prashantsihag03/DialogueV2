@@ -1,8 +1,8 @@
 import { type Request } from 'express'
-import { SESSION_COOKIE_NAME } from '../constants'
+import { SESSION_COOKIE_NAME } from '../constants.js'
 import { type JwtTokens } from './jwt-utils/types'
 import { type IncomingMessage } from 'http'
-import appLogger from '../appLogger'
+import appLogger from '../appLogger.js'
 import { parse } from 'cookie'
 
 export const extractTokens = (_req: Request): JwtTokens | null => {

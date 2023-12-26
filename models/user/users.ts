@@ -1,4 +1,4 @@
-import DynamoDbClient, { BASE_TABLE } from '../connection'
+import DynamoDbClient, { BASE_TABLE } from '../connection.js'
 import {
   type IUserProfileKeys,
   PROFILE_PREFIX,
@@ -12,8 +12,8 @@ import {
   type IUserSettingEntity,
   SETTING_PREFIX,
   type IUserSettingKeys
-} from './types'
-import { CONVERSATION_PREFIX } from '../conversations/types'
+} from './types.js'
+import { CONVERSATION_PREFIX } from '../conversations/types.js'
 import {
   type GetCommandOutput,
   type DeleteCommandOutput,

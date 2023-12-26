@@ -2,14 +2,20 @@ import cookieParser from 'cookie-parser'
 import express from 'express'
 import helmet from 'helmet'
 import path from 'path'
-import { redirectUnAuthenticated, validateTokens } from './middlewares/auth'
-import authRouter from './routes/auth'
-import conversationsRouter from './routes/conversations'
-import errorRouter from './routes/error'
-import { isAuthenticated } from './utils/auth-utils'
-import profileRouter from './routes/profile'
-import userRouter from './routes/users'
+import { redirectUnAuthenticated, validateTokens } from './middlewares/auth.js'
+import authRouter from './routes/auth.js'
+import conversationsRouter from './routes/conversations.js'
+import errorRouter from './routes/error.js'
+import { isAuthenticated } from './utils/auth-utils.js'
+import profileRouter from './routes/profile.js'
+import userRouter from './routes/users.js'
 import morgan from 'morgan'
+
+import { fileURLToPath } from 'url'
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __filename = fileURLToPath(import.meta.url)
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __dirname = path.dirname(__filename)
 
 export default function (): Express.Application {
   const app: express.Application = express()

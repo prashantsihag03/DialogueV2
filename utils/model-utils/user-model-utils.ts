@@ -1,4 +1,4 @@
-import { type IUserSettingAttibutes } from '../../models/user/types'
+import { type IUserSettingAttibutes } from '../../models/user/types.js'
 
 const UserSettingModelKeyRef: IUserSettingAttibutes = {
   enterSendsMessage: false,

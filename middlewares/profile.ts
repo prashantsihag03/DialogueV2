@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { getUser, updateUser } from '../models/user/users'
-import CustomError from '../utils/CustomError'
-import appLogger from '../appLogger'
+import { getUser, updateUser } from '../models/user/users.js'
+import CustomError from '../utils/CustomError.js'
+import appLogger from '../appLogger.js'
 
 export const getProfile = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   const response = await getUser(_res.locals.profileToFetch)

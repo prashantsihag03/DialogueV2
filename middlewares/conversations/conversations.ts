@@ -11,13 +11,16 @@ import {
   getAllMessagesByConvoId,
   getConversationInfoById,
   getConversationMembers
-} from '../../models/conversations/conversations'
-import { createUserConversation, deleteUserConversation, getUser } from '../../models/user/users'
-import { type IConversationInfoAttributes, type IConversationMessageAttributes } from '../../models/conversations/types'
-import appLogger from '../../appLogger'
-import type ConversationQuickView from './types'
-import CustomError from '../../utils/CustomError'
-import { handleAsyncMdw } from '../../utils/error-utils'
+} from '../../models/conversations/conversations.js'
+import { createUserConversation, deleteUserConversation, getUser } from '../../models/user/users.js'
+import {
+  type IConversationInfoAttributes,
+  type IConversationMessageAttributes
+} from '../../models/conversations/types.js'
+import appLogger from '../../appLogger.js'
+import type ConversationQuickView from './types.js'
+import CustomError from '../../utils/CustomError.js'
+import { handleAsyncMdw } from '../../utils/error-utils.js'
 
 export const transformConversationDataIntoQuickView = (_req: Request, _res: Response, next: NextFunction): void => {
   if (_res.locals.conversationIds == null || !Array.isArray(_res.locals.conversationIds)) {
@@ -49,12 +52,20 @@ export const transformConversationDataIntoQuickView = (_req: Request, _res: Resp
         )
       }
     }
+
+    let lastMsgContent = lastMessage?.message
+    if (lastMessage?.message != null) {
+      if (lastMessage?.message === '' && lastMessage.file != null) {
+        lastMsgContent = '[attachment]'
+      }
+    }
+
     convoQuickView.push({
       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       conversationId: _res.locals.conversationIds[index] + '',
       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       conversationName: convoInfo.isGroup === true ? convoInfo.conversationName : userConvo.conversationName,
-      lastMessage: lastMessage?.message ?? '',
+      lastMessage: lastMsgContent ?? '',
       lastMessageTime: lastMessage?.timeStamp,
       unseen: 0,
       lastMessageSenderId: lastMessage?.senderId ?? ''

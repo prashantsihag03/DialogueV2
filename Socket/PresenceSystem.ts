@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/space-before-function-paren */
 
-import appLogger from '../appLogger'
+import appLogger from '../appLogger.js'
 
 interface UserSocketSession {
   refreshTokenId: string

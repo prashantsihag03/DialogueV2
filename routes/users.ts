@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type NextFunction, type Request, type Response, Router } from 'express'
-import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth'
-import { getUser } from '../models/user/users'
-import appLogger from '../appLogger'
-import { handleAsyncMdw } from '../utils/error-utils'
-import { getSingleUserSetting, getUserSettings, updateSingleUserSetting, updateUserSettings } from '../middlewares/user'
-import CustomError from '../utils/CustomError'
-import { Sendok } from '../middlewares/commons'
+import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth.js'
+import { getUser } from '../models/user/users.js'
+import appLogger from '../appLogger.js'
+import { handleAsyncMdw } from '../utils/error-utils.js'
+import {
+  getSingleUserSetting,
+  getUserSettings,
+  updateSingleUserSetting,
+  updateUserSettings
+} from '../middlewares/user.js'
+import CustomError from '../utils/CustomError.js'
+import { Sendok } from '../middlewares/commons.js'
 
 const userRouter = Router()
 

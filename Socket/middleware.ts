@@ -1,9 +1,9 @@
 import { type Socket } from 'socket.io'
 import { type ExtendedError } from 'socket.io/dist/namespace'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
-import appLogger from '../appLogger'
-import { validateAccessToken } from '../utils/jwt-utils'
-import { extractSessionDataFromHeaders } from '../utils/session-utils'
+import appLogger from '../appLogger.js'
+import { validateAccessToken } from '../utils/jwt-utils/index.js'
+import { extractSessionDataFromHeaders } from '../utils/session-utils.js'
 
 const socketAuthMDW = (
   socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,

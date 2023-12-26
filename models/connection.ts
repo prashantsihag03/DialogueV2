@@ -1,7 +1,8 @@
-import { AWS_REGION } from '../constants'
+import { AWS_REGION } from '../constants.js'
 import { DynamoDB, DynamoDBClient, type DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
-import appLogger from '../appLogger'
+import appLogger from '../appLogger.js'
+import { S3Client } from '@aws-sdk/client-s3'
 
 export const BASE_TABLE = 'dialogueV2_base'
 export const GSI_CONVO_TIMESTAMP = 'conversation-timestamp-message'
@@ -13,6 +14,10 @@ const config: DynamoDBClientConfig = {
 const dynamoDB = new DynamoDB(config)
 const client = new DynamoDBClient(config)
 const DynamoDbClient = DynamoDBDocument.from(client)
+
+export const clientS3 = new S3Client({
+  region: 'ap-southeast-2'
+})
 
 export const checkDbConnection = (): void => {
   dynamoDB.describeTable(

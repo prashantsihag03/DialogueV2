@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
-import { type CONVERSATION_PREFIX } from '../conversations/types'
-import { type IBaseTable } from '../types'
+import { type CONVERSATION_PREFIX } from '../conversations/types.js'
+import { type IBaseTable } from '../types.js'
 
 export const USER_PREFIX = 'USER#'
 export const PROFILE_PREFIX = 'PROFILE#'

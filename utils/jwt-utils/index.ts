@@ -1,7 +1,7 @@
 import jwt, { type AccessTokenJwtPayload } from 'jsonwebtoken'
-import { createSessionKeys, getSession, storeSession } from '../../models/user/sessions'
-import { type JwtTokens } from './types'
-import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from './contants'
+import { createSessionKeys, getSession, storeSession } from '../../models/user/sessions.js'
+import { type JwtTokens } from './types.js'
+import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from './contants.js'
 
 export const generateJwtToken = async (userId: string): Promise<JwtTokens> => {
   const accessToken = createAccessToken(userId)

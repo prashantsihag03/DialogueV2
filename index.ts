@@ -1,9 +1,9 @@
 import http from 'http'
-import createApp from './app'
-import { isDevEnv } from './constants'
-import initializeSocketServer from './Socket/socketServer'
-import { checkDbConnection } from './models/connection'
-import appLogger from './appLogger'
+import createApp from './app.js'
+import { isDevEnv } from './constants.js'
+import initializeSocketServer from './Socket/socketServer.js'
+import { checkDbConnection } from './models/connection.js'
+import appLogger from './appLogger.js'
 
 const port: number = process.env.PORT != null && process.env.PORT !== '' ? Number(process.env.PORT) : 3000
 

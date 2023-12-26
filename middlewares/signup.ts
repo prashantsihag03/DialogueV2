@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt'
 import { type NextFunction, type Request, type Response } from 'express'
-import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils'
-import { createUser, updateAllUserSettingDb } from '../models/user/users'
-import { type IUserProfileAttibutes } from '../models/user/types'
-import appLogger from '../appLogger'
-import { handleAsyncMdw } from '../utils/error-utils'
-import CustomError from '../utils/CustomError'
+import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils.js'
+import { createUser, updateAllUserSettingDb } from '../models/user/users.js'
+import { type IUserProfileAttibutes } from '../models/user/types.js'
+import appLogger from '../appLogger.js'
+import { handleAsyncMdw } from '../utils/error-utils.js'
+import CustomError from '../utils/CustomError.js'
 
 export const validateSignUpCredentials = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {

@@ -5,11 +5,11 @@ import {
   getUserSettingsDb,
   updateAllUserSettingDb,
   updateSingleUserSettingDb
-} from '../models/user/users'
-import appLogger from '../appLogger'
-import CustomError from '../utils/CustomError'
-import { type IUserSettingAttibutes } from '../models/user/types'
-import { isValidUserSettingKey } from '../utils/model-utils/user-model-utils'
+} from '../models/user/users.js'
+import appLogger from '../appLogger.js'
+import CustomError from '../utils/CustomError.js'
+import { type IUserSettingAttibutes } from '../models/user/types.js'
+import { isValidUserSettingKey } from '../utils/model-utils/user-model-utils.js'
 
 export const getUserConversations = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {

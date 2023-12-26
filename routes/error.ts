@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { GenericErrorHandler } from '../middlewares/error'
+import { GenericErrorHandler } from '../middlewares/error.js'
 
 const errorRouter = Router()
 

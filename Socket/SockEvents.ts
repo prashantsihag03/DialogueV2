@@ -1,29 +1,26 @@
 /* eslint-disable @typescript-eslint/space-before-function-paren */
 import { v4 as uuidv4 } from 'uuid'
-import { type Socket, type Server } from 'socket.io'
-import type PresenceSystem from './PresenceSystem'
+import { type Server } from 'socket.io'
+import type PresenceSystem from './PresenceSystem.js'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
-import appLogger from '../appLogger'
-import { addMessageToConversation, getConversationMembers } from '../models/conversations/conversations'
-import { isMsgValid } from '../utils/validation-utils'
+import appLogger from '../appLogger.js'
+import {
+  addMessageToConversation,
+  getConversationMembers,
+  storeMsgObject
+} from '../models/conversations/conversations.js'
+import { isMsgValid } from '../utils/validation-utils.js'
+import { type AnswerCall, type IceCandidate, type InitiateCall, type SocketRef, type SocketServerRef } from './types.js'
+import CustomError from '../utils/CustomError.js'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileTypeFromBuffer } from 'file-type'
 
-type SocketRef = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
-type SocketServerRef = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
-
-interface InitiateCall {
-  userToCall: string
-  offer: any
-}
-
-interface IceCandidate {
-  from: string
-  candidate: any
-}
-
-interface AnswerCall {
-  userToAnswer: string
-  answer: any
-}
+import { fileURLToPath } from 'url'
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __filename = fileURLToPath(import.meta.url)
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __dirname = path.dirname(__filename)
 
 class SockEvents {
   private readonly presenceSystem: PresenceSystem
@@ -58,20 +55,21 @@ class SockEvents {
       socket.data.refreshToken == null ||
       !isMsgValid(data.conversationId, socket.data.jwt.username, data.text)
     ) {
-      appLogger.error('Validation of message data on socket event failed.')
-      return
+      throw new CustomError('Message data format validation failed. Please format message correctly!', {
+        internalMsg:
+          'Either message data not correctly formatted, or authentication details are missing from socket connection',
+        code: 400
+      })
     }
 
     const convoMembers = await getConversationMembers(data.conversationId)
     if (convoMembers.$metadata.httpStatusCode !== 200 || convoMembers.Items == null) {
-      appLogger.error('Couldnt retrieve members for given conversationId for message sending permissions')
-      return
+      throw new CustomError('Retrieval of conversation members for permission check failed', { code: 500 })
     }
 
     if (!convoMembers.Items.includes((member: { memberId: any }) => member.memberId === socket.data.jwt.username)) {
       // TODO: Uncomment following check once members are being added to convo at the time of convo creation
-      // appLogger.error('Illegal attempt to send message in conversation where user is not a member.')
-      // return
+      // throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
     }
 
     const socketSessions = this.presenceSystem.getAllUserSocketSessions(data.receiver)
@@ -81,12 +79,36 @@ class SockEvents {
 
     const relevantSockets = allSockets.filter((sock) => socketIds.includes(sock.id))
 
-    const emitMsg = {
-      conversationId: data.conversationId,
+    const emitMsg: any = {
+      conversationId: data.conversationId as string,
       message: data.text,
       messageId: `message-${uuidv4()}`,
-      senderId: socket.data.jwt.username,
+      senderId: socket.data.jwt.username as string,
       timeStamp: Date.now()
+    }
+
+    // const mimeType = mime.lookup(data.file)
+    const fileTypeResponse = await fileTypeFromBuffer(data.file)
+
+    if (fileTypeResponse == null) {
+      throw new CustomError('Unrecognised file type. Please try again with supported file type.', { code: 400 })
+    }
+
+    appLogger.warn(`User uploaded a file with ext: ${fileTypeResponse.ext}`)
+    // Generate a unique filename based on timestamp and detected file extension
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const fileName = `${emitMsg.conversationId}_${emitMsg.senderId}_${emitMsg.messageId}.${fileTypeResponse.ext}`
+    const filePath = path.join(__dirname, `../uploads/${fileName}`)
+    emitMsg.file = fileName
+
+    // Save the file locally
+    fs.writeFileSync(filePath, data.file)
+
+    // store the file in s3
+    const resp = await storeMsgObject(fileName, fs.readFileSync(filePath))
+
+    if (resp.$metadata.httpStatusCode !== 200) {
+      throw new CustomError('Unexpected issue encountered while uploading file', { code: 500 })
     }
 
     const response3 = await addMessageToConversation(emitMsg)
@@ -112,6 +134,7 @@ class SockEvents {
         senderId: emitMsg.senderId,
         timeStamp: emitMsg.timeStamp,
         status: 'sent',
+        file: emitMsg.file,
         localMessageId: data.localMessageId ?? ''
       }
     })

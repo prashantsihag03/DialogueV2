@@ -1,10 +1,10 @@
 import path from 'path'
-import { SESSION_COOKIE_NAME } from '../constants'
+import { SESSION_COOKIE_NAME } from '../constants.js'
 import { type NextFunction, type Request, type Response } from 'express'
-import { deleteSession } from '../models/user/sessions'
-import { validateAccessToken } from '../utils/jwt-utils'
-import { extractTokens } from '../utils/session-utils'
-import appLogger from '../appLogger'
+import { deleteSession } from '../models/user/sessions.js'
+import { validateAccessToken } from '../utils/jwt-utils/index.js'
+import { extractTokens } from '../utils/session-utils.js'
+import appLogger from '../appLogger.js'
 
 const options = {
   root: path.resolve('./public')

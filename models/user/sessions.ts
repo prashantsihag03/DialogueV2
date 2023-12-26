@@ -1,6 +1,6 @@
 import { type DeleteCommandOutput, type GetCommandOutput, type PutCommandOutput } from '@aws-sdk/lib-dynamodb'
-import DynamoDbClient, { BASE_TABLE } from '../connection'
-import { type IUserSessionKeys, SESSION_PREFIX, USER_PREFIX, type IUserSessionEntity } from './types'
+import DynamoDbClient, { BASE_TABLE } from '../connection.js'
+import { type IUserSessionKeys, SESSION_PREFIX, USER_PREFIX, type IUserSessionEntity } from './types.js'
 
 export const createSessionKeys = (userid: string, sessionid: string): IUserSessionKeys => {
   return {
