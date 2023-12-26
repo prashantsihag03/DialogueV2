@@ -10,7 +10,9 @@ import { handleSocketEvent } from '../utils/error-utils.js'
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 
-const socketServerOptions: Partial<ServerOptions> = {}
+const socketServerOptions: Partial<ServerOptions> = {
+  maxHttpBufferSize: 1e7
+}
 
 /**
  * Sets up and initialises a SocketIO server along with assigning it with all middlewares, and events.
