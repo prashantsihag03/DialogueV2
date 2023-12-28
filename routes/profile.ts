@@ -7,6 +7,12 @@ import path from 'path'
 import appLogger from '../appLogger.js'
 import fs from 'node:fs/promises'
 
+import { fileURLToPath } from 'url'
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __filename = fileURLToPath(import.meta.url)
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __dirname = path.dirname(__filename)
+
 const profileRouter = Router()
 
 const storage = multer.diskStorage({
