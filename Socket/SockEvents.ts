@@ -87,28 +87,28 @@ class SockEvents {
       timeStamp: Date.now()
     }
 
-    // const mimeType = mime.lookup(data.file)
-    const fileTypeResponse = await fileTypeFromBuffer(data.file)
+    if (data.file != null) {
+      const fileTypeResponse = await fileTypeFromBuffer(data.file)
 
-    if (fileTypeResponse == null) {
-      throw new CustomError('Unrecognised file type. Please try again with supported file type.', { code: 400 })
-    }
+      if (fileTypeResponse == null) {
+        throw new CustomError('Unrecognised file type. Please try again with supported file type.', { code: 400 })
+      }
 
-    appLogger.warn(`User uploaded a file with ext: ${fileTypeResponse.ext}`)
-    // Generate a unique filename based on timestamp and detected file extension
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    const fileName = `${emitMsg.conversationId}_${emitMsg.senderId}_${emitMsg.messageId}.${fileTypeResponse.ext}`
-    const filePath = path.join(__dirname, `../uploads/${fileName}`)
-    emitMsg.file = fileName
+      // Generate a unique filename based on timestamp and detected file extension
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      const fileName = `${emitMsg.conversationId}_${emitMsg.senderId}_${emitMsg.messageId}.${fileTypeResponse.ext}`
+      const filePath = path.join(__dirname, `../uploads/${fileName}`)
+      emitMsg.file = fileName
 
-    // Save the file locally
-    fs.writeFileSync(filePath, data.file)
+      // Save the file locally
+      fs.writeFileSync(filePath, data.file)
 
-    // store the file in s3
-    const resp = await storeMsgObject(fileName, fs.readFileSync(filePath))
+      // store the file in s3
+      const resp = await storeMsgObject(fileName, fs.readFileSync(filePath))
 
-    if (resp.$metadata.httpStatusCode !== 200) {
-      throw new CustomError('Unexpected issue encountered while uploading file', { code: 500 })
+      if (resp.$metadata.httpStatusCode !== 200) {
+        throw new CustomError('Unexpected issue encountered while uploading file', { code: 500 })
+      }
     }
 
     const response3 = await addMessageToConversation(emitMsg)

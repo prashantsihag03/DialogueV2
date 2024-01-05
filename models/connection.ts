@@ -29,7 +29,7 @@ export const checkDbConnection = (): void => {
       if (!err) {
         appLogger.info('Database connection check successfull')
       } else {
-        appLogger.error('Database connection check failed')
+        appLogger.error(`Database connection check failed: ${JSON.stringify(err)}`)
       }
     }
   )
