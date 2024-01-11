@@ -82,7 +82,6 @@ conversationsRouter.get(
 
 conversationsRouter.get(
   '/:conversationId/messages/:messageId/attachment/:attachmentId',
-  // handleAsyncMdw(),
   handleAsyncMdw(getMsgAttachment),
   (_req: Request, _res: Response, next: NextFunction): void => {
     if (_res.locals.msgAttachment?.status === 'Successful' && _res.locals.msgAttachment?.data != null) {

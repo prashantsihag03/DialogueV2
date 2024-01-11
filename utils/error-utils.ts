@@ -5,7 +5,7 @@ import CustomError from './CustomError.js'
 export const handleMdwErrors = (err: any, _res: Response): void => {
   if (err instanceof CustomError) {
     appLogger.error(`[HTTP] ${err.message}:${err.details.internalMsg ?? ''}:${JSON.stringify(err.stack)}`)
-    _res.status(err.details.code).send({ error: err.message })
+    _res.status(err.details.code).send({ error: err.message, data: err.details.data ?? {} })
     return
   }
   appLogger.error(`[HTTP]: ${JSON.stringify(err.stack)}`)

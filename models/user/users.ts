@@ -123,18 +123,6 @@ export const updateSingleUserSettingDb = async (
     pkid: `${USER_PREFIX}${userid}`,
     skid: `${SETTING_PREFIX}${userid}`
   }
-  console.log({
-    Key: userSettingDbKeys,
-    TableName: BASE_TABLE,
-    UpdateExpression: 'SET #attr1 = :val1',
-    ConditionExpression: 'attribute_exists(pkid)',
-    ExpressionAttributeNames: {
-      '#attr1': userSettingKey
-    },
-    ExpressionAttributeValues: {
-      ':val1': userSettingValue
-    }
-  })
   return await DynamoDbClient.update({
     Key: userSettingDbKeys,
     TableName: BASE_TABLE,

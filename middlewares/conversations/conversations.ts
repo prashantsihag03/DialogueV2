@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { type Request, type Response, type NextFunction } from 'express'
 import {
+  addConversationMember,
   addMessageToConversation,
   createConversation,
   deleteAllMessagesByConvoId,
@@ -247,6 +248,23 @@ export const startNewConversation = handleAsyncMdw(
     }
 
     // add these two users as MEMBER to the conversation as well
+    const memRes = await addConversationMember({
+      conversationId: newConversation.conversationId,
+      memberId: _res.locals.jwt.username,
+      JoinedAt: newConversation.createdAt
+    })
+    const mem2Res = await addConversationMember({
+      conversationId: newConversation.conversationId,
+      memberId: _req.body.conversationUserId,
+      JoinedAt: newConversation.createdAt
+    })
+
+    if (memRes.$metadata.httpStatusCode !== 200 || mem2Res.$metadata.httpStatusCode !== 200) {
+      throw new CustomError('Couldnt assign members to conversation!', {
+        code: 500,
+        data: { conversationId: newConversation.conversationId }
+      })
+    }
 
     const response3 = await addMessageToConversation({
       conversationId: newConversation.conversationId,

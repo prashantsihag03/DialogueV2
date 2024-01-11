@@ -188,7 +188,6 @@ class SockEvents {
     ackCallback: any,
     SocketIO: SocketServerRef
   ): Promise<void> {
-    console.log('Ice candidate even received')
     if (
       socket.data.jwt.username == null ||
       socket.data.refreshToken == null ||

@@ -2,6 +2,7 @@
 interface CustomErrorDetails {
   code: number
   internalMsg?: string
+  data?: any
 }
 
 class CustomError extends Error {

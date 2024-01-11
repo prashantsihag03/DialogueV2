@@ -178,7 +178,6 @@ export const getMsgObject = async (objectKey: string): Promise<GetObjectCommandO
     Bucket: 'dialogue-v2',
     Key: objectKey
   })
-  console.log('Sending data')
   return await clientS3.send(command)
   // The Body object also has 'transformToByteArray' and 'transformToWebStream' methods.
   // const str = await response.Body.transformToString()
