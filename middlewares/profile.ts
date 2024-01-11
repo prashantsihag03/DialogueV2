@@ -2,12 +2,25 @@ import { type Request, type Response, type NextFunction } from 'express'
 import { getUser, updateUser } from '../models/user/users.js'
 import CustomError from '../utils/CustomError.js'
 import appLogger from '../appLogger.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import fs from 'node:fs/promises'
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __filename = fileURLToPath(import.meta.url)
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __dirname = path.dirname(__filename)
 
 export const getProfile = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   const response = await getUser(_res.locals.profileToFetch)
   if (response.$metadata.httpStatusCode !== 200 || response.Item == null) {
     _res.status(500).send('Something went wrong! Please try again later!')
     return
+  }
+  let profilePicture = response.Item.profileImg
+  if (response.Item.profileImg == null) {
+    const fileContents = await fs.readFile(path.join(__dirname, '../public/images/no-profile-picture.jpg'))
+    profilePicture = fileContents.toString('base64')
   }
   delete response.Item.password
   _res.send({
@@ -17,7 +30,7 @@ export const getProfile = async (_req: Request, _res: Response, next: NextFuncti
     profileImgSrc: '',
     lastOnlineUTCDateTime: '',
     bio: response.Item.bio ?? '',
-    profileImg: response.Item.profileImg ?? null
+    profileImg: profilePicture
   })
 }
 
