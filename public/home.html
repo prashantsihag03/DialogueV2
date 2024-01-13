@@ -5,13 +5,15 @@
         }
         :root {
             --background: #151515;
-            --primary: #8dafff;
+            --secondary: #8dafff;
+            --text: #d9d9d9;
         }
 
         @media (prefers-color-scheme: light) {
             :root {
                 --background: whitesmoke;
-                --primary: #2b6bff;
+                --secondary: #2b6bff;
+                --text: #3D3D3D;
             }
         }
 
@@ -41,6 +43,7 @@
             display: flex; 
             height: 100vh; 
             width: 100%; 
+            flex-direction: column;
             justify-content: center; 
             align-items: center;
         }
@@ -51,8 +54,8 @@
             height: 4em;
             border: 0.3em solid rgba(255, 255, 255, 0);
             border-radius: 50%;
-            border-top-color: var(--primary);
-            border-right-color: var(--primary);
+            border-top-color: var(--secondary);
+            border-right-color: var(--secondary);
             animation: spin 1s ease-in-out infinite;
             -webkit-animation: spin 1s ease-in-out infinite;
         }
@@ -66,4 +69,4 @@
             to {
                 -webkit-transform: rotate(360deg);
             }
-        }</style><script defer="defer" src="./javascripts/home.js"></script></head><body><div id="root"><div class="spinContainer"><div class="spin"></div></div></div></body></html>
+        }</style><script defer="defer" src="./javascripts/home.js"></script></head><body><div id="root"><div class="spinContainer"><div class="spin"></div><p style="margin-top: 0.5rem; color: var(--text);">fetching</p></div></div></body></html>
