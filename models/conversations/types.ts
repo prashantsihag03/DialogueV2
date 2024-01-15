@@ -20,6 +20,11 @@ export interface IConversationMessageAttributes {
   senderId: string
   message: string
   timeStamp: number // is there a datetime type in dynamodb
+  attachment?: string // id of attachment stored on s3
+  /**
+   * Deprecated
+   * generate file id, store file in s3 separately, assign file id to 'attachment' field in db
+   */
   file?: string
 }
 

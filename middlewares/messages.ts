@@ -10,8 +10,9 @@ import {
 import { type IConversationMessageAttributes } from '../models/conversations/types.js'
 import { isMsgValid } from '../utils/validation-utils.js'
 import CustomError from '../utils/CustomError.js'
-import appLogger from '../appLogger.js'
 import fs from 'node:fs/promises'
+import { handleAsyncMdw } from '../utils/error-utils.js'
+import { type CustomRequest } from './types.js'
 
 interface CleanedMessage {
   messageId: string
@@ -91,9 +92,33 @@ export const transformDynamoMsg = async (_req: Request, _res: Response, next: Ne
   _res.send(transformedMessages)
 }
 
+export const configureMsgMediaS3Info = handleAsyncMdw(
+  async (_req: CustomRequest, _res: Response, next: NextFunction): Promise<void> => {
+    if (_req.params.conversationId == null) {
+      throw new CustomError('Missing required parameters.', { code: 500 })
+    }
+    _res.locals.attachmentId = uuidv4()
+    _req.s3Path = `/${_req.params.conversationId}`
+    _req.fileNamePrefix = `${_req.params.conversationId}-${_res.locals.attachmentId as string}-${Date.now()}`
+    next()
+  }
+)
+
+export const respondNewMsgAttachment = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (_req.file == null) {
+      throw new CustomError('Error encountered while retrieving uploaded file info.', { code: 500 })
+    }
+    _res.status(200).send({
+      fileName: _req.file.fieldname,
+      attachmentId: _res.locals.attachmentId
+    })
+  }
+)
+
 // TODO: Fix file uploads. Only return file name as response. Specify unique file name via multer
-export const storeNewMessage = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  try {
+export const storeNewMessage = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
     if (!isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text)) {
       throw new CustomError('Invalid message provided!', { code: 400 })
     }
@@ -125,16 +150,8 @@ export const storeNewMessage = async (_req: Request, _res: Response, next: NextF
     }
 
     _res.status(200).send({ ...newMessage, localMessageId: _req.body.localMessageId ?? '' })
-  } catch (err: any) {
-    if (err instanceof CustomError) {
-      appLogger.error(`${err.message}: ${JSON.stringify(err.stack)}`)
-      _res.status(err.details.code).send(err.message)
-      return
-    }
-    appLogger.error(`${JSON.stringify(err.stack)}`)
-    _res.status(500).send('Something went wrong. Please try again later')
   }
-}
+)
 
 export const deleteAllMessagesByConversationId = async (
   _req: Request,
