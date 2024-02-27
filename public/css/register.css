@@ -47,7 +47,7 @@ main {
     height: 100vh;
     justify-content: space-between;
     align-items: center;
-    background-color: #8dafff;
+    background-color: #2b6bff;
 }
 #toggleForm {
     display: none;
@@ -132,7 +132,7 @@ main {
 }
 
 #loginsubmit:hover, #signupsubmit:hover {
-    background-color: #2b6bff;
+    background-color: rgb(41, 72, 138);
     cursor: pointer;
 }
 
@@ -171,7 +171,6 @@ main {
         align-items: center;
         width: 100%;
         height: 0%;
-        background-color: rgb(70, 130, 180);
         transition: all 0.4s linear;
     }
     
@@ -180,7 +179,6 @@ main {
         justify-content: center;
         width: 100%;
         height: 100%;
-        background-color: rgb(70, 130, 180);
         transition: all 0.4s linear;
     }
 }
