@@ -1,4 +1,4 @@
-import CustomError from './CustomError'
+import CustomError from './CustomError.js'
 
 /**
  * Vaidates conversation data for new conversations.
