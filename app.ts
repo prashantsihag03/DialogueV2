@@ -1,17 +1,17 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import helmet from 'helmet'
 import path from 'path'
 import { redirectUnAuthenticated, validateTokens } from './middlewares/auth.js'
 import authRouter from './routes/auth.js'
-import conversationsRouter from './routes/conversations.js'
 import errorRouter from './routes/error.js'
 import { isAuthenticated } from './utils/auth-utils.js'
 import profileRouter from './routes/profile.js'
 import userRouter from './routes/users.js'
 import morgan from 'morgan'
-
 import { fileURLToPath } from 'url'
+import conversationsRouter from './routes/conversations/index.js'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -45,7 +45,6 @@ export default function (): Express.Application {
   // none so far
 
   // Routes
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.get('/', validateTokens, (_req, _res) => {
     if (!isAuthenticated(_res)) {
       _res.redirect('/register')
@@ -54,7 +53,6 @@ export default function (): Express.Application {
     _res.redirect('/home')
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.get('/home', validateTokens, redirectUnAuthenticated, (_req, _res, next) => {
     _res.sendFile('home.html', options)
   })

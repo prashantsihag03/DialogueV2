@@ -22,6 +22,8 @@ import appLogger from '../../appLogger.js'
 import type ConversationQuickView from './types.js'
 import CustomError from '../../utils/CustomError.js'
 import { handleAsyncMdw } from '../../utils/error-utils.js'
+import { validateNewConversationData } from '../../utils/conversations-utils.js'
+import { isLoggedInUser } from '../../utils/login-utils.js'
 
 export const transformConversationDataIntoQuickView = (_req: Request, _res: Response, next: NextFunction): void => {
   if (_res.locals.conversationIds == null || !Array.isArray(_res.locals.conversationIds)) {
@@ -182,18 +184,13 @@ export const getOneToOneConversationUserNames = async (
 
 export const startNewConversation = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    if (_req.body.isGroup == null) throw new CustomError('Missing required information.', { code: 400 })
-    if (_req.body.isGroup === true) throw new CustomError('Group conversations are not yet supported!', { code: 501 })
-    if (_req.body.conversationUserId == null) {
-      throw new CustomError('Missing requried properties!', {
-        code: 400
-      })
-    }
-    if (_req.body.conversationUserId === _res.locals.jwt.username) {
+    validateNewConversationData(_req.body)
+    if (isLoggedInUser(_req.body.conversationUserId, _res)) {
       throw new CustomError('Creating conversation with yourself is not supported yet!', {
         code: 400
       })
     }
+
     if (_res.locals.userConversations == null) {
       throw new CustomError('Something went wrong. Please try again later!', {
         code: 400,
