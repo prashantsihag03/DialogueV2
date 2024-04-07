@@ -35,7 +35,8 @@ export const getUserSettings = async (_req: Request, _res: Response, next: NextF
   const userSetting: IUserSettingAttibutes = {
     enterSendsMessage: settingResp.Item?.enterSendsMessage === 'true',
     greetMeEverytime: settingResp.Item?.greetMeEverytime === 'true',
-    openExistingConversation: settingResp.Item?.openExistingConversation === 'true'
+    openExistingConversation: settingResp.Item?.openExistingConversation === 'true',
+    compactConversationView: settingResp.Item?.openExistingConversation === 'true'
   }
   _res.locals.userSetting = userSetting
   next()
@@ -65,10 +66,11 @@ export const updateUserSettings = async (_req: Request, _res: Response, next: Ne
   const settingResp = await updateAllUserSettingDb(_res.locals.jwt.username, {
     enterSendsMessage: _req.body?.enterSendsMessage,
     greetMeEverytime: _req.body?.greetMeEverytime,
-    openExistingConversation: _req.body?.openExistingConversation
+    openExistingConversation: _req.body?.openExistingConversation,
+    compactConversationView: _req.body?.openExistingConversation
   })
   if (settingResp.$metadata.httpStatusCode !== 200) {
-    throw new CustomError("Couldn't retrieve user setting.", { code: 500 })
+    throw new CustomError("Couldn't update user setting.", { code: 500 })
   }
   next()
 }

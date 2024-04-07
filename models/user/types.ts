@@ -31,6 +31,7 @@ export interface IUserSettingAttibutes {
   greetMeEverytime: boolean
   enterSendsMessage: boolean
   openExistingConversation: boolean
+  compactConversationView: boolean
 }
 
 export interface IUserProfileKeys extends IBaseTable<typeof USER_PREFIX, typeof PROFILE_PREFIX> {}

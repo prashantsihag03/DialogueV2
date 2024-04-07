@@ -45,7 +45,8 @@ export const signup = handleAsyncMdw(async (_req: Request, _res: Response, next:
   const userSettingResult = await updateAllUserSettingDb(_res.locals.validatedPotentialUserDetails.username, {
     enterSendsMessage: true,
     greetMeEverytime: true,
-    openExistingConversation: true
+    openExistingConversation: true,
+    compactConversationView: false
   })
 
   if (userSettingResult.$metadata.httpStatusCode !== 200) {
