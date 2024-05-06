@@ -1,4 +1,5 @@
 import { GenericErrorHandler } from '../../middlewares/error'
+import { jest } from '@jest/globals'
 
 describe('Error Middleware Test Suite', () => {
   describe('GenericErrorHandler', () => {

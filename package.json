@@ -5,7 +5,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "purgeDynamodb": "sh ./dev/scripts/purgeTable.sh",
     "setupDynamodb": "sh ./dev/scripts/setupTable.sh",
     "lint": "eslint .",
@@ -43,7 +43,8 @@
     "socket.io": "^4.6.1",
     "uuid": "^9.0.0",
     "web-push": "^3.5.0",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "zod": "^3.23.6"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

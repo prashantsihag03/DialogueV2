@@ -173,3 +173,7 @@ export const getAllUserConversations = async (userId: string): Promise<QueryComm
     }
   })
 }
+
+export default {
+  getUser
+}

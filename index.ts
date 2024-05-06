@@ -7,16 +7,10 @@ import appLogger from './appLogger.js'
 
 const port: number = process.env.PORT != null && process.env.PORT !== '' ? Number(process.env.PORT) : 3000
 
-// check DB connections
 checkDbConnection()
 
-// Express App
 const app = createApp()
-
-// Server setup
 const server = http.createServer(app)
-
-// WebSocket Server Setup
 initializeSocketServer(server)
 
 server.listen(port, () => {

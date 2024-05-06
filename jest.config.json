@@ -1,0 +1,20 @@
+{
+  "testEnvironment": "node",
+  "coveragePathIgnorePatterns": ["/node_modules/", "/build/"],
+  "restoreMocks": true,
+  "clearMocks": true,
+  "resetMocks": true,
+  "verbose": true,
+  "transform": {
+    "^.+\\.ts?$": [
+      "ts-jest",
+      {
+        "useESM": true
+      }
+    ]
+  },
+  "extensionsToTreatAsEsm": [".ts"],
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  }
+}

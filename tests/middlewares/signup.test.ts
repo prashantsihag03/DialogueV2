@@ -1,5 +1,6 @@
 import * as ValidationUtils from '../../utils/validation-utils'
 import { validateSignUpCredentials } from '../../middlewares/signup'
+import { jest } from '@jest/globals'
 
 describe('Signup Middleware Test Suite', () => {
   describe('validateSignUpCredentials', () => {
@@ -61,10 +62,10 @@ describe('Signup Middleware Test Suite', () => {
     })
 
     it('should validate user details by calling respective isValid function', async () => {
-      const mockIsValidUsername = jest.fn().mockReturnValue(true)
-      const mockisValidPassword = jest.fn().mockReturnValue(true)
-      const mockisValidEmail = jest.fn().mockReturnValue(true)
-      const mockisValidGender = jest.fn().mockReturnValue(false)
+      const mockIsValidUsername = jest.fn<typeof ValidationUtils.isValidUsername>().mockReturnValue(true)
+      const mockisValidPassword = jest.fn<typeof ValidationUtils.isValidPassword>().mockReturnValue(true)
+      const mockisValidEmail = jest.fn<typeof ValidationUtils.isValidEmail>().mockReturnValue(true)
+      const mockisValidGender = jest.fn<typeof ValidationUtils.isValidGender>().mockReturnValue(false)
 
       jest.spyOn(ValidationUtils, 'isValidUsername').mockImplementation(mockIsValidUsername)
       jest.spyOn(ValidationUtils, 'isValidPassword').mockImplementation(mockisValidPassword)

@@ -1,6 +1,7 @@
 import { type Request, type NextFunction, type Response } from 'express'
 import appLogger from '../appLogger.js'
 import CustomError from './CustomError.js'
+import { ZodError } from 'zod'
 
 export const handleMdwErrors = (err: any, _res: Response): void => {
   if (err instanceof CustomError) {
@@ -8,6 +9,13 @@ export const handleMdwErrors = (err: any, _res: Response): void => {
     _res.status(err.details.code).send({ error: err.message, data: err.details.data ?? {} })
     return
   }
+
+  if (err instanceof ZodError) {
+    appLogger.error(`[HTTP] Zod validation failed:${err.message}:${JSON.stringify(err.stack)}`)
+    _res.status(400).send('Validation failure. Please provide valid data.')
+    return
+  }
+
   appLogger.error(`[HTTP]: ${JSON.stringify(err.stack)}`)
   _res.status(500).send({ error: 'Something went wrong. Please try again later' })
 }
@@ -34,6 +42,18 @@ export const handleAsyncMdw = (
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await asyncMiddleware(req, res, next)
+    } catch (err) {
+      handleMdwErrors(err, res)
+    }
+  }
+}
+
+export const handleMdw = (
+  middleware: (req: Request, res: Response, next: NextFunction) => void
+): ((req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      middleware(req, res, next)
     } catch (err) {
       handleMdwErrors(err, res)
     }
