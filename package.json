@@ -10,7 +10,7 @@
     "setupDynamodb": "sh ./dev/scripts/setupTable.sh",
     "lint": "eslint .",
     "watch": "NODE_ENV=development nodemon -r dotenv/config index.ts",
-    "build": "rm -rf build/*; tsc; cp -r public ./build/public; mkdir ./build/uploads",
+    "build": "rm -rf build/*; tsc -p ./tsconfig.json; cp -r public ./build/public; mkdir ./build/uploads",
     "start": "NODE_ENV=production node ./build/index.js",
     "dev": "NODE_ENV=development node -r dotenv/config ./build/index.js",
     "dbClean": "npm run purgeDynamodb && npm run setupDynamodb",

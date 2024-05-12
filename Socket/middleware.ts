@@ -2,8 +2,8 @@ import { type Socket } from 'socket.io'
 import { type ExtendedError } from 'socket.io/dist/namespace'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
 import appLogger from '../appLogger.js'
-import { validateAccessToken } from '../utils/jwt-utils/index.js'
-import { extractSessionDataFromHeaders } from '../utils/session-utils.js'
+import JwtUtils from '../utils/jwt-utils/index.js'
+import SessionUtils from '../utils/session-utils.js'
 
 const socketAuthMDW = (
   socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
@@ -15,14 +15,14 @@ const socketAuthMDW = (
     return
   }
 
-  const sessionTokens = extractSessionDataFromHeaders(socket.request)
+  const sessionTokens = SessionUtils.extractSessionDataFromHeaders(socket.request)
   if (sessionTokens == null) {
     appLogger.error('Socket conn invalidated due to invalid tokens!')
     next(new Error('Invalid!'))
     return
   }
 
-  validateAccessToken(sessionTokens.accessToken)
+  JwtUtils.validateAccessToken(sessionTokens.accessToken)
     .then((result) => {
       if (result.decoded != null && !result.expired) {
         socket.data.jwt = result.decoded

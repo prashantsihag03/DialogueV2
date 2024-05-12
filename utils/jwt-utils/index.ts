@@ -1,19 +1,19 @@
 import jwt, { type AccessTokenJwtPayload } from 'jsonwebtoken'
-import { createSessionKeys, getSession, storeSession } from '../../models/user/sessions.js'
+import SessionModel from '../../models/user/sessions.js'
 import { type JwtTokens } from './types.js'
 import { ACCESS_TOKEN_EXPIRATION, JWT_SECRET, REFRESH_TOKEN_EXPIRATION } from './contants.js'
 
-export const generateJwtToken = async (userId: string): Promise<JwtTokens> => {
+const generateJwtToken = async (userId: string): Promise<JwtTokens> => {
   const accessToken = createAccessToken(userId)
   const refreshToken = createRefreshToken(userId)
 
   const sessionEntity = {
-    ...createSessionKeys(userId, refreshToken),
+    ...SessionModel.createSessionKeys(userId, refreshToken),
     createdAt: new Date().toUTCString(),
     sessionId: refreshToken
   }
 
-  await storeSession(sessionEntity)
+  await SessionModel.storeSession(sessionEntity)
 
   return {
     accessToken,
@@ -21,7 +21,7 @@ export const generateJwtToken = async (userId: string): Promise<JwtTokens> => {
   }
 }
 
-export const validateAccessToken = async (
+const validateAccessToken = async (
   accessToken: string
   // eslint-disable-next-line @typescript-eslint/member-delimiter-style
 ): Promise<{ expired: boolean; decoded: string | AccessTokenJwtPayload | null }> => {
@@ -37,10 +37,10 @@ export const validateAccessToken = async (
   }
 }
 
-export const validateRefreshToken = async (refreshToken: string, username: string): Promise<boolean> => {
+const validateRefreshToken = async (refreshToken: string, username: string): Promise<boolean> => {
   try {
     jwt.verify(refreshToken, JWT_SECRET)
-    const session = await getSession(username, refreshToken)
+    const session = await SessionModel.getSession(username, refreshToken)
     if (
       session.Item?.sessionId != null &&
       session.Item.sessionId === refreshToken &&
@@ -54,18 +54,28 @@ export const validateRefreshToken = async (refreshToken: string, username: strin
   }
 }
 
-export const createAccessToken = (username: string): string => {
+const createAccessToken = (username: string): string => {
   return createToken({ username }, { expiresIn: Number(ACCESS_TOKEN_EXPIRATION) })
 }
 
-export const createRefreshToken = (username: string): string => {
+const createRefreshToken = (username: string): string => {
   return createToken({ username }, { expiresIn: Number(REFRESH_TOKEN_EXPIRATION) })
 }
 
-export const createToken = (data: object, options: jwt.SignOptions): string => {
+const createToken = (data: object, options: jwt.SignOptions): string => {
   return jwt.sign(data, JWT_SECRET, options)
 }
 
-export const decodeAccessToken = (accessToken: string): AccessTokenJwtPayload => {
+const decodeAccessToken = (accessToken: string): AccessTokenJwtPayload => {
   return jwt.decode(accessToken, { json: true }) as AccessTokenJwtPayload
+}
+
+export default {
+  generateJwtToken,
+  validateAccessToken,
+  validateRefreshToken,
+  createAccessToken,
+  createRefreshToken,
+  createToken,
+  decodeAccessToken
 }

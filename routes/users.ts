@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type NextFunction, type Request, type Response, Router } from 'express'
-import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth.js'
+import AuthMdw from '../middlewares/auth.js'
 import { getUser } from '../models/user/users.js'
 import appLogger from '../appLogger.js'
 import { handleAsyncMdw } from '../utils/error-utils.js'
@@ -16,8 +16,8 @@ import { Sendok } from '../middlewares/commons.js'
 const userRouter = Router()
 
 // Router level Middlewares
-userRouter.use(validateTokens)
-userRouter.use(rejectUnAuthenticated)
+userRouter.use(AuthMdw.validateTokens)
+userRouter.use(AuthMdw.rejectUnAuthenticated)
 
 userRouter.get('/search/:userid', async (_req: Request, _res: Response, next: NextFunction) => {
   if (_req.params.userid == null || _req.params.userid === '') {

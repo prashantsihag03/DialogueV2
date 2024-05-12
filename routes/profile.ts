@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type NextFunction, type Request, type Response, Router } from 'express'
-import { rejectUnAuthenticated, validateTokens } from '../middlewares/auth.js'
+import AuthMdw from '../middlewares/auth.js'
 import { getProfile, updateProfile } from '../middlewares/profile.js'
 import multer from 'multer'
 import path from 'path'
@@ -26,8 +26,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 // Router level Middlewares
-profileRouter.use(validateTokens)
-profileRouter.use(rejectUnAuthenticated)
+profileRouter.use(AuthMdw.validateTokens)
+profileRouter.use(AuthMdw.rejectUnAuthenticated)
 
 profileRouter.get(
   '/',

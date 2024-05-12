@@ -5,7 +5,7 @@ import { type IncomingMessage } from 'http'
 import appLogger from '../appLogger.js'
 import { parse } from 'cookie'
 
-export const extractTokens = (_req: Request): JwtTokens | null => {
+const extractTokens = (_req: Request): JwtTokens | null => {
   if (
     _req.cookies?.[`${SESSION_COOKIE_NAME}`]?.accessToken != null &&
     _req.cookies[`${SESSION_COOKIE_NAME}`].refreshToken != null
@@ -19,7 +19,7 @@ export const extractTokens = (_req: Request): JwtTokens | null => {
   return null
 }
 
-export const extractSessionDataFromHeaders = (_req: IncomingMessage): JwtTokens | null => {
+const extractSessionDataFromHeaders = (_req: IncomingMessage): JwtTokens | null => {
   let accessToken: string | null = null
   let refreshToken: string | null = null
 
@@ -45,4 +45,9 @@ export const extractSessionDataFromHeaders = (_req: IncomingMessage): JwtTokens 
   }
 
   return accessToken != null && refreshToken != null ? { accessToken, refreshToken } : null
+}
+
+export default {
+  extractSessionDataFromHeaders,
+  extractTokens
 }

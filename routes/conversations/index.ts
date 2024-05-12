@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type NextFunction, type Request, type Response, Router } from 'express'
-import { rejectUnAuthenticated, validateTokens } from '../../middlewares/auth.js'
+import AuthMdw from '../../middlewares/auth.js'
 import { getUserConversations } from '../../middlewares/user.js'
 import {
   deleteConversationMdw,
@@ -17,8 +17,8 @@ import attachmentsRouter from './attachment.js'
 const conversationsRouter = Router()
 
 // Router level Middlewares
-conversationsRouter.use(validateTokens)
-conversationsRouter.use(rejectUnAuthenticated)
+conversationsRouter.use(AuthMdw.validateTokens)
+conversationsRouter.use(AuthMdw.rejectUnAuthenticated)
 
 // Routes
 conversationsRouter.get(

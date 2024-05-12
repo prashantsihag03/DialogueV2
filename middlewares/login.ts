@@ -3,7 +3,7 @@ import { type NextFunction, type Request, type Response } from 'express'
 import { SESSION_COOKIE_NAME } from '../constants.js'
 import UserModel from '../models/user/users.js'
 import AuthUtils from '../utils/auth-utils.js'
-import { generateJwtToken } from '../utils/jwt-utils/index.js'
+import JwtUtils from '../utils/jwt-utils/index.js'
 import appLogger from '../appLogger.js'
 import { ZodError, z } from 'zod'
 import { handleAsyncMdw, handleMdw } from '../utils/error-utils.js'
@@ -82,7 +82,7 @@ export const authenticateLoginCredentials = handleAsyncMdw(
  * Assumes login credentials have been authenticated.
  */
 export const login = async (_req: Request, _res: Response): Promise<void> => {
-  const tokens = await generateJwtToken(_res.locals.authenticated)
+  const tokens = await JwtUtils.generateJwtToken(_res.locals.authenticated)
   _res.cookie(SESSION_COOKIE_NAME, tokens, {
     httpOnly: true,
     secure: true,
