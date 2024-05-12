@@ -6,8 +6,13 @@ interface UserSocketSession {
   refreshTokenId: string
 }
 
+/**
+ * Records and stores active socket connections by userids.
+ * Currently it holds in memory. However, can be uplifted to integrate with Redis (or equivalent) to store/fetch user session information.
+ */
 class PresenceSystem {
   private connectedUsers: Record<string, Record<string, UserSocketSession>> = {}
+
   constructor() {
     appLogger.info('Presence System initialized')
   }

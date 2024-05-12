@@ -6,7 +6,7 @@ import path from 'path'
 import { redirectUnAuthenticated, validateTokens } from './middlewares/auth.js'
 import authRouter from './routes/auth.js'
 import errorRouter from './routes/error.js'
-import { isAuthenticated } from './utils/auth-utils.js'
+import AuthUtils from './utils/auth-utils.js'
 import profileRouter from './routes/profile.js'
 import userRouter from './routes/users.js'
 import morgan from 'morgan'
@@ -46,7 +46,7 @@ export default function (): Express.Application {
 
   // Routes
   app.get('/', validateTokens, (_req, _res) => {
-    if (!isAuthenticated(_res)) {
+    if (!AuthUtils.isAuthenticated(_res)) {
       _res.redirect('/register')
       return
     }

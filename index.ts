@@ -7,7 +7,15 @@ import appLogger from './appLogger.js'
 
 const port: number = process.env.PORT != null && process.env.PORT !== '' ? Number(process.env.PORT) : 3000
 
-checkDbConnection()
+checkDbConnection(
+  () => {
+    appLogger.info('Database connection check successfull')
+  },
+  (err) => {
+    appLogger.error(`Database connection check failed: ${JSON.stringify(err)}`)
+    process.exit(1)
+  }
+)
 
 const app = createApp()
 const server = http.createServer(app)
