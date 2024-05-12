@@ -1,5 +1,5 @@
 import { type Response } from 'express'
-import { isValidPassword, isValidUsername } from './validation-utils.js'
+import ValidationUtils from './validation-utils.js'
 
 export interface ValidatedCredentials {
   username: string
@@ -27,8 +27,8 @@ const getAuthenticatedUserData = (_res: Response): { sessionId: string; username
 }
 
 const getValidatedCredentials = (username: any, password: any): ValidatedCredentials | null => {
-  if (!isValidUsername(username)) return null
-  if (!isValidPassword(password)) return null
+  if (!ValidationUtils.isValidUsername(username)) return null
+  if (!ValidationUtils.isValidPassword(password)) return null
   return {
     username: username as string,
     password: password as string

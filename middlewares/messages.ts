@@ -8,7 +8,7 @@ import {
   getMsgObject
 } from '../models/conversations/conversations.js'
 import { type IConversationMessageAttributes } from '../models/conversations/types.js'
-import { isMsgValid } from '../utils/validation-utils.js'
+import ValidationUtils from '../utils/validation-utils.js'
 import CustomError from '../utils/CustomError.js'
 import fs from 'node:fs/promises'
 import { handleAsyncMdw } from '../utils/error-utils.js'
@@ -119,7 +119,7 @@ export const respondNewMsgAttachment = handleAsyncMdw(
 // TODO: Fix file uploads. Only return file name as response. Specify unique file name via multer
 export const storeNewMessage = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    if (!isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text)) {
+    if (!ValidationUtils.isMsgValid(_req.body.conversationId, _req.body.senderUserId, _req.body.text)) {
       throw new CustomError('Invalid message provided!', { code: 400 })
     }
     let fileContents = null

@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { type NextFunction, type Request, type Response } from 'express'
-import { isValidEmail, isValidGender, isValidPassword, isValidUsername } from '../utils/validation-utils.js'
+import ValidationUtils from '../utils/validation-utils.js'
 import { createUser, updateAllUserSettingDb } from '../models/user/users.js'
 import { type IUserProfileAttibutes } from '../models/user/types.js'
 import appLogger from '../appLogger.js'
@@ -10,10 +10,10 @@ import CustomError from '../utils/CustomError.js'
 export const validateSignUpCredentials = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
     if (
-      !isValidUsername(_req.body.username) ||
-      !isValidPassword(_req.body.password) ||
-      !isValidEmail(_req.body.email) ||
-      !isValidGender(_req.body.gender)
+      !ValidationUtils.isValidUsername(_req.body?.username) ||
+      !ValidationUtils.isValidPassword(_req.body?.password) ||
+      !ValidationUtils.isValidEmail(_req.body?.email) ||
+      !ValidationUtils.isValidGender(_req.body?.gender)
     ) {
       throw new CustomError('Missing required data!', { code: 400 })
     }

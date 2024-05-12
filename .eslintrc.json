@@ -9,9 +9,9 @@
     "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",
-        "project": ["tsconfig.json"]
+        "project": ["tsconfig.base.json"]
     },
-    "ignorePatterns": ["node_modules", "public/*", "build/*"],
+    "ignorePatterns": ["node_modules", "public/*", "build/*", "coverage/*"],
     "rules": {
     }
 }

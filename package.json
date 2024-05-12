@@ -5,7 +5,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
     "purgeDynamodb": "sh ./dev/scripts/purgeTable.sh",
     "setupDynamodb": "sh ./dev/scripts/setupTable.sh",
     "lint": "eslint .",

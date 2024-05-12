@@ -9,7 +9,7 @@ import {
   getConversationMembers,
   storeMsgObject
 } from '../models/conversations/conversations.js'
-import { isMsgValid } from '../utils/validation-utils.js'
+import ValidationUtils from '../utils/validation-utils.js'
 import { type AnswerCall, type IceCandidate, type InitiateCall, type SocketRef, type SocketServerRef } from './types.js'
 import CustomError from '../utils/CustomError.js'
 import fs from 'node:fs'
@@ -22,7 +22,7 @@ const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __dirname = path.dirname(__filename)
 
-class SockEvents {
+export default class SockEvents {
   private readonly presenceSystem: PresenceSystem
   private readonly socketServer: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 
@@ -53,7 +53,7 @@ class SockEvents {
     if (
       socket.data.jwt.username == null ||
       socket.data.refreshToken == null ||
-      !isMsgValid(data.conversationId, socket.data.jwt.username, data.text)
+      !ValidationUtils.isMsgValid(data.conversationId, socket.data.jwt.username, data.text)
     ) {
       throw new CustomError('Message data format validation failed. Please format message correctly!', {
         internalMsg:
@@ -262,5 +262,3 @@ class SockEvents {
     })
   }
 }
-
-export default SockEvents

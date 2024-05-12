@@ -1,6 +1,8 @@
 {
   "testEnvironment": "node",
-  "coveragePathIgnorePatterns": ["/node_modules/", "/build/"],
+  "coveragePathIgnorePatterns": ["/node_modules/", "/build/", "/public/", "/coverage/"],
+  "collectCoverageFrom": ["**/*.{js,jsx}", "**/*.{ts,tsx}"],
+  "coverageReporters": ["clover", "json", "lcov", ["text", { "skipFull": true }]],
   "restoreMocks": true,
   "clearMocks": true,
   "resetMocks": true,
