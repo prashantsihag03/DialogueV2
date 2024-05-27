@@ -5,6 +5,8 @@ import appLogger from '../appLogger.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'node:fs/promises'
+import { handleAsyncMdw } from '../utils/error-utils.js'
+import { userSettingSchema } from '../models/user/schema.js'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
@@ -33,6 +35,14 @@ export const getProfile = async (_req: Request, _res: Response, next: NextFuncti
     profileImg: profilePicture
   })
 }
+
+export const getSingleProfileKey = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (!Object.keys(userSettingSchema.shape).includes(_req.params?.settingKey)) {
+      throw new CustomError('Invalid parameters', { code: 400 })
+    }
+  }
+)
 
 export const updateProfile = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {

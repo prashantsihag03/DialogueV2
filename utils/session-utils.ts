@@ -1,6 +1,6 @@
 import { type Request } from 'express'
 import { SESSION_COOKIE_NAME } from '../constants.js'
-import { type JwtTokens } from './jwt-utils/types'
+import { type JwtTokens } from './jwt-utils/types.js'
 import { type IncomingMessage } from 'http'
 import appLogger from '../appLogger.js'
 import { parse } from 'cookie'

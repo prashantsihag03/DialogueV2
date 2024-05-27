@@ -8,12 +8,14 @@ import {
   type IUserConversationEntity,
   type IUserConversationAttributes,
   type IUserProfileAttibutes,
-  type IUserSettingAttibutes,
   type IUserSettingEntity,
   SETTING_PREFIX,
   type IUserSettingKeys
 } from './types.js'
 import { CONVERSATION_PREFIX } from '../conversations/types.js'
+import { type z } from 'zod'
+import { type userSettingSchema } from './schema.js'
+
 import {
   type GetCommandOutput,
   type DeleteCommandOutput,
@@ -85,7 +87,7 @@ export const getUserSettingsDb = async (userId: string): Promise<GetCommandOutpu
 
 export const getUserSettingDb = async (
   userId: string,
-  settingKey: keyof IUserSettingAttibutes
+  settingKey: keyof z.infer<typeof userSettingSchema>
 ): Promise<GetCommandOutput> => {
   const keys: IUserSettingKeys = {
     pkid: `${USER_PREFIX}${userId}`,
@@ -101,7 +103,7 @@ export const getUserSettingDb = async (
 
 export const updateAllUserSettingDb = async (
   userid: string,
-  userSetting: IUserSettingAttibutes
+  userSetting: z.infer<typeof userSettingSchema>
 ): Promise<UpdateCommandOutput> => {
   const setting: IUserSettingEntity = {
     pkid: `${USER_PREFIX}${userid}`,
@@ -175,5 +177,6 @@ export const getAllUserConversations = async (userId: string): Promise<QueryComm
 }
 
 export default {
-  getUser
+  getUser,
+  updateSingleUserSettingDb
 }

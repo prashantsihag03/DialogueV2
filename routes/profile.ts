@@ -8,6 +8,9 @@ import appLogger from '../appLogger.js'
 import fs from 'node:fs/promises'
 
 import { fileURLToPath } from 'url'
+import { handleAsyncMdw } from '../utils/error-utils.js'
+import { getSingleUserSetting } from '../middlewares/user.js'
+import CustomError from '../utils/CustomError.js'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -68,6 +71,17 @@ profileRouter.post(
     next()
   },
   updateProfile
+)
+
+profileRouter.get(
+  '/:profileKey',
+  handleAsyncMdw(getSingleUserSetting),
+  handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (_res.locals?.userSetting == null) {
+      throw new CustomError('Something went wrong. Please try again later', { code: 500 })
+    }
+    _res.send({ [_req.params.settingKey]: _res.locals?.userSetting[_req.params.settingKey] ?? true })
+  })
 )
 
 export default profileRouter

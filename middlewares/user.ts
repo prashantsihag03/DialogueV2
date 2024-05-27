@@ -1,15 +1,16 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import {
+import UserModel, {
   getAllUserConversations,
   getUserSettingDb,
   getUserSettingsDb,
-  updateAllUserSettingDb,
-  updateSingleUserSettingDb
+  updateAllUserSettingDb
 } from '../models/user/users.js'
 import appLogger from '../appLogger.js'
 import CustomError from '../utils/CustomError.js'
 import { type IUserSettingAttibutes } from '../models/user/types.js'
-import { isValidUserSettingKey } from '../utils/model-utils/user-model-utils.js'
+import { handleAsyncMdw } from '../utils/error-utils.js'
+import { userSettingSchema } from '../models/user/schema.js'
+import ValidationUtils from '../utils/validation-utils.js'
 
 export const getUserConversations = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -46,7 +47,7 @@ export const getUserSettings = async (_req: Request, _res: Response, next: NextF
  * Validates settingKey in request parameters and adds data for particular settingKey in resp.locals.setting object
  */
 export const getSingleUserSetting = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  if (!isValidUserSettingKey(_req.params.settingKey)) {
+  if (!Object.keys(userSettingSchema.shape).includes(_req.params?.settingKey)) {
     throw new CustomError('Invalid parameters', { code: 400 })
   }
   const settingResp = await getUserSettingDb(
@@ -75,19 +76,24 @@ export const updateUserSettings = async (_req: Request, _res: Response, next: Ne
   next()
 }
 
-export const updateSingleUserSetting = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  if (!isValidUserSettingKey(_req.params.settingKey) || _req.params.settingValue == null) {
-    throw new CustomError('Invalid parameters provided!', { code: 400 })
-  }
+export const updateSingleUserSetting = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (
+      !Object.keys(userSettingSchema.shape).includes(_req.params?.settingKey) ||
+      !ValidationUtils.isValidBoolean(_req.params?.settingValue)
+    ) {
+      throw new CustomError('Provided setting key or value is invalid!', { code: 400 })
+    }
 
-  const settingResp = await updateSingleUserSettingDb(
-    _res.locals.jwt.username,
-    _req.params.settingKey,
-    _req.params.settingValue
-  )
+    const settingResp = await UserModel.updateSingleUserSettingDb(
+      _res.locals.jwt.username,
+      _req.params.settingKey,
+      _req.params.settingValue
+    )
 
-  if (settingResp.$metadata.httpStatusCode !== 200) {
-    throw new CustomError("Couldn't update user setting.", { code: 500 })
+    if (settingResp.$metadata.httpStatusCode !== 200) {
+      throw new CustomError("Couldn't update user setting.", { code: 500 })
+    }
+    next()
   }
-  next()
-}
+)

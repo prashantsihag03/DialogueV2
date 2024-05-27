@@ -65,6 +65,6 @@ userRouter.get(
     _res.send({ [_req.params.settingKey]: _res.locals?.userSetting[_req.params.settingKey] ?? true })
   })
 )
-userRouter.post('/settings/:settingKey/:settingValue', handleAsyncMdw(updateSingleUserSetting), Sendok)
+userRouter.post('/settings/:settingKey/:settingValue', updateSingleUserSetting, Sendok)
 
 export default userRouter

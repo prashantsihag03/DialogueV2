@@ -46,10 +46,28 @@ const isMsgValid = (
   return true
 }
 
+const isValidBoolean = (value: any): boolean => {
+  if (
+    value === 'true' ||
+    value === 'false' ||
+    value === true ||
+    value === false ||
+    value === 'True' ||
+    value === 'False' ||
+    value === 'TRUE' ||
+    value === 'FALSE'
+  ) {
+    return true
+  } else {
+    return false
+  }
+}
+
 export default {
   isMsgValid,
   isValidEmail,
   isValidGender,
   isValidPassword,
-  isValidUsername
+  isValidUsername,
+  isValidBoolean
 }
