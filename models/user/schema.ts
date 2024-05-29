@@ -9,4 +9,14 @@ export const userSettingSchema = z
   })
   .required()
 
-export const userProfileSchema = z.object({})
+export const userProfileSchema = z
+  .object({
+    username: z.string(),
+    fullname: z.string(),
+    password: z.string(),
+    gender: z.string(),
+    email: z.string(),
+    bio: z.string(),
+    profileImg: z.string()
+  })
+  .required()

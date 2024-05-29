@@ -1,12 +1,14 @@
 import { type Request, type Response, type NextFunction } from 'express'
-import { getUser, updateUser } from '../models/user/users.js'
+import { getUser, getUserProfileKey, updateSingleProfileKey, updateUser } from '../models/user/users.js'
 import CustomError from '../utils/CustomError.js'
 import appLogger from '../appLogger.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'node:fs/promises'
 import { handleAsyncMdw } from '../utils/error-utils.js'
-import { userSettingSchema } from '../models/user/schema.js'
+import { userProfileSchema } from '../models/user/schema.js'
+import ValidationUtils from '../utils/validation-utils.js'
+import { type z } from 'zod'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
@@ -35,14 +37,6 @@ export const getProfile = async (_req: Request, _res: Response, next: NextFuncti
     profileImg: profilePicture
   })
 }
-
-export const getSingleProfileKey = handleAsyncMdw(
-  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    if (!Object.keys(userSettingSchema.shape).includes(_req.params?.settingKey)) {
-      throw new CustomError('Invalid parameters', { code: 400 })
-    }
-  }
-)
 
 export const updateProfile = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -76,3 +70,51 @@ export const updateProfile = async (_req: Request, _res: Response, next: NextFun
     _res.status(500).send('Something went wrong. Please try again later')
   }
 }
+
+export const getSingleProfileKey = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (!Object.keys(userProfileSchema.shape).includes(_req.params?.profileKey)) {
+      throw new CustomError('Invalid parameters', { code: 400 })
+    }
+    const profileResp = await getUserProfileKey(
+      _res.locals.jwt.username,
+      _req.params.profileKey as keyof z.infer<typeof userProfileSchema>
+    )
+    if (profileResp.$metadata.httpStatusCode !== 200) {
+      throw new CustomError("Couldn't retrieve user profile key.", { code: 500 })
+    }
+
+    let profileValue = profileResp.Item != null ? profileResp.Item[_req.params.settingKey] : null
+
+    if (profileValue == null && _req.params.profileKey === 'profileImg') {
+      const fileContents = await fs.readFile(path.join(__dirname, '../public/images/no-profile-picture.jpg'))
+      profileValue = fileContents.toString('base64')
+    }
+
+    _res.locals.userProfile = {}
+    _res.locals.userProfile[_req.params.profileKey] = profileValue
+    next()
+  }
+)
+
+export const updateSingleUserProfileKey = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    if (
+      !Object.keys(userProfileSchema.shape).includes(_req.params?.profileKey) ||
+      !ValidationUtils.isValidBoolean(_req.params?.profileValue)
+    ) {
+      throw new CustomError('Provided profile key or value is invalid!', { code: 400 })
+    }
+
+    let newValue = _req.params.profileValue
+    if (_req.params.profileKey === 'profileImg') {
+      newValue = _res.locals.newProfileData.profileImg
+    }
+    const settingResp = await updateSingleProfileKey(_res.locals.jwt.username, _req.params.profileKey, newValue)
+
+    if (settingResp.$metadata.httpStatusCode !== 200) {
+      throw new CustomError("Couldn't update user profile.", { code: 500 })
+    }
+    next()
+  }
+)

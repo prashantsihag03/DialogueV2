@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type NextFunction, type Request, type Response, Router } from 'express'
 import AuthMdw from '../middlewares/auth.js'
-import { getProfile, updateProfile } from '../middlewares/profile.js'
+import { getProfile, getSingleProfileKey, updateProfile, updateSingleUserProfileKey } from '../middlewares/profile.js'
 import multer from 'multer'
 import path from 'path'
 import appLogger from '../appLogger.js'
@@ -9,8 +9,8 @@ import fs from 'node:fs/promises'
 
 import { fileURLToPath } from 'url'
 import { handleAsyncMdw } from '../utils/error-utils.js'
-import { getSingleUserSetting } from '../middlewares/user.js'
 import CustomError from '../utils/CustomError.js'
+import { Sendok } from '../middlewares/commons.js'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -75,13 +75,27 @@ profileRouter.post(
 
 profileRouter.get(
   '/:profileKey',
-  handleAsyncMdw(getSingleUserSetting),
+  handleAsyncMdw(getSingleProfileKey),
   handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    if (_res.locals?.userSetting == null) {
+    if (_res.locals?.userProfile == null) {
       throw new CustomError('Something went wrong. Please try again later', { code: 500 })
     }
-    _res.send({ [_req.params.settingKey]: _res.locals?.userSetting[_req.params.settingKey] ?? true })
+    _res.send({ [_req.params.profileKey]: _res.locals?.userProfile[_req.params.profileKey] ?? true })
   })
+)
+
+profileRouter.post(
+  ':profileKey',
+  upload.single('value'),
+  handleAsyncMdw(async (_req: Request, _res: Response, next: NextFunction) => {
+    if (_req.file?.path != null) {
+      const fileContents = await fs.readFile(_req.file.path)
+      _res.locals.newProfileData.profileImg = fileContents.toString('base64')
+    }
+    next()
+  }),
+  updateSingleUserProfileKey,
+  Sendok
 )
 
 export default profileRouter

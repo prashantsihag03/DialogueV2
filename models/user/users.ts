@@ -14,7 +14,7 @@ import {
 } from './types.js'
 import { CONVERSATION_PREFIX } from '../conversations/types.js'
 import { type z } from 'zod'
-import { type userSettingSchema } from './schema.js'
+import { type userProfileSchema, type userSettingSchema } from './schema.js'
 
 import {
   type GetCommandOutput,
@@ -33,6 +33,45 @@ export const getUser = async (userId: string): Promise<GetCommandOutput> => {
     TableName: BASE_TABLE,
     Key: keys,
     ConsistentRead: true
+  })
+}
+
+export const getUserProfileKey = async (
+  userId: string,
+  profileKey: keyof z.infer<typeof userProfileSchema>
+): Promise<GetCommandOutput> => {
+  const keys: IUserProfileKeys = {
+    pkid: `${USER_PREFIX}${userId}`,
+    skid: `${PROFILE_PREFIX}${userId}`
+  }
+  return await DynamoDbClient.get({
+    TableName: BASE_TABLE,
+    Key: keys,
+    ConsistentRead: true,
+    AttributesToGet: [profileKey]
+  })
+}
+
+export const updateSingleProfileKey = async (
+  userid: string,
+  profileKey: string,
+  profileValue: string
+): Promise<UpdateCommandOutput> => {
+  const userSettingDbKeys: IUserProfileKeys = {
+    pkid: `${USER_PREFIX}${userid}`,
+    skid: `${PROFILE_PREFIX}${userid}`
+  }
+  return await DynamoDbClient.update({
+    Key: userSettingDbKeys,
+    TableName: BASE_TABLE,
+    UpdateExpression: 'SET #attr1 = :val1',
+    ConditionExpression: 'attribute_exists(pkid)',
+    ExpressionAttributeNames: {
+      '#attr1': profileKey
+    },
+    ExpressionAttributeValues: {
+      ':val1': profileValue
+    }
   })
 }
 
