@@ -12,13 +12,6 @@ const isValidUsername = (value: string | null): boolean => {
   return true
 }
 
-const isValidGender = (value: string | null): boolean => {
-  if (value == null) return false
-  const lowerCaseValue = value.toLocaleLowerCase()
-  if (lowerCaseValue !== 'male' && lowerCaseValue !== 'female' && lowerCaseValue !== 'other') return false
-  return true
-}
-
 const isValidEmail = (value: string | null): boolean => {
   if (value == null) return false
   if (!value.includes('@') || !value.includes('.com') || value.includes('@.com')) return false
@@ -66,7 +59,6 @@ const isValidBoolean = (value: any): boolean => {
 export default {
   isMsgValid,
   isValidEmail,
-  isValidGender,
   isValidPassword,
   isValidUsername,
   isValidBoolean

@@ -48,7 +48,6 @@ export const updateProfile = async (_req: Request, _res: Response, next: NextFun
     const updateUserResponse = await updateUser({
       email: _res.locals.newProfileData.email ?? response.Item.email,
       fullname: _res.locals.newProfileData.fullname ?? response.Item.fullname,
-      gender: response.Item.gender,
       password: response.Item.password,
       username: response.Item.username,
       bio: _res.locals.newProfileData.bio ?? response.Item.bio,

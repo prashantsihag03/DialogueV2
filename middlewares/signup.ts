@@ -12,8 +12,7 @@ export const validateSignUpCredentials = handleAsyncMdw(
     if (
       !ValidationUtils.isValidUsername(_req.body?.username) ||
       !ValidationUtils.isValidPassword(_req.body?.password) ||
-      !ValidationUtils.isValidEmail(_req.body?.email) ||
-      !ValidationUtils.isValidGender(_req.body?.gender)
+      !ValidationUtils.isValidEmail(_req.body?.email)
     ) {
       throw new CustomError('Missing required data!', { code: 400 })
     }
@@ -24,7 +23,6 @@ export const validateSignUpCredentials = handleAsyncMdw(
       fullname: _req.body.fullname,
       password: await bcrypt.hash(_req.body.password, saltRounds),
       email: _req.body.email,
-      gender: _req.body.gender,
       bio: ''
     }
     _res.locals.validatedPotentialUserDetails = potentialUser

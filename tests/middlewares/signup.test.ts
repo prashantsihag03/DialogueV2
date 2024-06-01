@@ -31,8 +31,7 @@ describe('Signup Middleware Test Suite', () => {
         body: {
           username: 'mockUsername',
           password: 'mockPassword',
-          email: 'mock@Email.com',
-          gender: 'male'
+          email: 'mock@Email.com'
         }
       }
       const mockNext = jest.fn()
@@ -51,12 +50,10 @@ describe('Signup Middleware Test Suite', () => {
       const mockIsValidUsername = jest.fn<typeof ValidationUtils.isValidUsername>().mockReturnValue(true)
       const mockisValidPassword = jest.fn<typeof ValidationUtils.isValidPassword>().mockReturnValue(true)
       const mockisValidEmail = jest.fn<typeof ValidationUtils.isValidEmail>().mockReturnValue(true)
-      const mockisValidGender = jest.fn<typeof ValidationUtils.isValidGender>().mockReturnValue(false)
 
       jest.spyOn(ValidationUtils, 'isValidUsername').mockImplementation(mockIsValidUsername)
       jest.spyOn(ValidationUtils, 'isValidPassword').mockImplementation(mockisValidPassword)
       jest.spyOn(ValidationUtils, 'isValidEmail').mockImplementation(mockisValidEmail)
-      jest.spyOn(ValidationUtils, 'isValidGender').mockImplementation(mockisValidGender)
 
       const mockSend = jest.fn()
       const mockStatus = jest.fn().mockReturnValue({ send: mockSend })
@@ -65,8 +62,7 @@ describe('Signup Middleware Test Suite', () => {
         body: {
           username: 'mockUsername',
           password: 'mockPassword',
-          email: 'mockEmail',
-          gender: 'mockGender'
+          email: 'mockEmail'
         }
       }
       const mockRes: any = {
@@ -84,16 +80,12 @@ describe('Signup Middleware Test Suite', () => {
 
       expect(mockisValidEmail).toHaveBeenCalled()
       expect(mockisValidEmail).toHaveBeenCalledWith('mockEmail')
-
-      expect(mockisValidGender).toHaveBeenCalled()
-      expect(mockisValidGender).toHaveBeenCalledWith('mockGender')
     })
 
     it('should send 400 status with correct text when request body contains invalid user details and not add validatedPotentialUserDetails parameter to response.locals object when any user details are invalid', async () => {
       jest.spyOn(ValidationUtils, 'isValidUsername').mockReturnValue(true)
       jest.spyOn(ValidationUtils, 'isValidPassword').mockReturnValue(true)
       jest.spyOn(ValidationUtils, 'isValidEmail').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidGender').mockReturnValue(false)
 
       const mockSend = jest.fn()
       const mockStatus = jest.fn().mockReturnValue({ send: mockSend })
@@ -102,8 +94,7 @@ describe('Signup Middleware Test Suite', () => {
         body: {
           username: 'mockUsername',
           password: 'mockPassword',
-          email: 'mockEmail',
-          gender: 'mockGender'
+          email: 'mockEmail'
         }
       }
       const mockRes: any = {
@@ -123,7 +114,6 @@ describe('Signup Middleware Test Suite', () => {
       jest.spyOn(ValidationUtils, 'isValidUsername').mockReturnValue(true)
       jest.spyOn(ValidationUtils, 'isValidPassword').mockReturnValue(true)
       jest.spyOn(ValidationUtils, 'isValidEmail').mockReturnValue(true)
-      jest.spyOn(ValidationUtils, 'isValidGender').mockReturnValue(true)
 
       const mockStatus = jest.fn()
       const mockSend = jest.fn()
@@ -132,8 +122,7 @@ describe('Signup Middleware Test Suite', () => {
         body: {
           username: 'mockUsername',
           password: 'mockPassword',
-          email: 'mock@Email.com',
-          gender: 'male'
+          email: 'mock@Email.com'
         }
       }
       const mockRes: any = {
@@ -157,9 +146,6 @@ describe('Signup Middleware Test Suite', () => {
 
       expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('email')
       expect(mockRes.locals.validatedPotentialUserDetails.email).toBe('mock@Email.com')
-
-      expect(mockRes.locals.validatedPotentialUserDetails).toHaveProperty('gender')
-      expect(mockRes.locals.validatedPotentialUserDetails.gender).toBe('male')
     })
   })
 })

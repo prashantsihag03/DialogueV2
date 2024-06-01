@@ -14,7 +14,6 @@ export const userProfileSchema = z
     username: z.string(),
     fullname: z.string(),
     password: z.string(),
-    gender: z.string(),
     email: z.string(),
     bio: z.string(),
     profileImg: z.string()

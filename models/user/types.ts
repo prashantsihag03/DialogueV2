@@ -11,7 +11,6 @@ export interface IUserProfileAttibutes {
   username: string
   fullname: string
   password: string
-  gender: string
   email: string
   bio: string
   profileImg?: string

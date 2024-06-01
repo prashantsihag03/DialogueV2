@@ -6,38 +6,56 @@
     <link rel="stylesheet" href="css/register.css">
     <script defer src="javascripts/register.js"></script>
     <title>Register</title>
+    <style>
+        @font-face {
+            font-family: 'Michroma Regular';
+            src: url('font/Michroma-Regular.ttf');
+        }
+
+    </style>
 </head>
 <body>
-    <header id="logo"><img src="images/allDarkDialogueLogo.svg" alt="Dialogue Logo"></header>
     <main>
-        <section id="signup-container">
-            <form id="signup" action="/signup" method="POST">
-                <small></small>
-                <input class="form-instance" type="text" placeholder="Create a userid" name="username" required>
-                <small></small>
-                <input class="form-instance" type="text" placeholder="Enter full name" name="fullname" required>
-                <small></small>
-                <input class="form-instance" type="password" placeholder="Create a password" name="password" required>
-                <small></small>
-                <input class="form-instance" type="email" placeholder="Email address" name="email" required>
-                <small></small>
-                <div class="form-instance" title="if you prefer not to mention, some gender based features might not work">
-                    <label><input type="radio" name="gender" value="male"> Male</label>
-                    <label><input type="radio" name="gender" value="female"> Female</label>
+        <section class="illustrations-container">
+            <div class="illustrations">
+                <header id="logo">
+                    <img src="images/allDarkDialogueLogo.svg" alt="Dialogue Logo">
+                </header>
+                <img id="illustration-img" src="images/chatting.svg" width="70%" height="100%"/>
+            </div>
+        </section>
+        <section class="form-container">
+            <div class="option-container">
+                <div class="options">
+                    <p id="form-heading">Log In</p>
+                    <ul>
+                        <li><a><img src="images/google.svg" alt="Google" /></a></li>
+                        <li><a><img src="images/facebook.svg" alt="Facebook" /></a></li>
+                        <li><a><img src="images/linkedin.svg" alt="LinkedIn" /></a></li>
+                        <li><a><img src="images/apple.svg" alt="Apple" /></a></li>
+                    </ul>
                 </div>
-                <input id="signupsubmit" type="submit" value="Sign up">
-            </form>
+                <p>OR</p>
+                <form id="login" action="/login" method="POST">
+                    <small></small>
+                    <input class="form-instance" type="text" placeholder="Enter your username" name="username" required>
+                    <small></small>
+                    <input class="form-instance" type="password" placeholder="Enter your password" name="password" required>
+                    <input class="submit-btn" type="submit" value="Continue">
+                </form>
+                <form id="signup" action="/signup" method="POST">
+                    <small></small>
+                    <input class="form-instance" type="text" placeholder="Create a userid" name="username" required>
+                    <small></small>
+                    <input class="form-instance" type="password" placeholder="Create a password" name="password" required>
+                    <small></small>
+                    <input class="form-instance" type="email" placeholder="Email address" name="email" required>
+                    <small></small>
+                    <input class="submit-btn" type="submit" value="Continue">
+                </form>
+                <button id="form-switch">signup instead</button>
+            </div>
         </section>
-        <section id="login-container">
-            <form id="login" action="/login" method="POST">
-                <small></small>
-                <input class="form-instance" type="text" placeholder="Enter your username" name="username" required>
-                <small></small>
-                <input class="form-instance" type="password" placeholder="Enter your password" name="password" required>
-                <input id="loginsubmit" type="submit" value="Log in">
-            </form>
-        </section>
-        <button id="toggleForm">Signup</button>
     </main>
 
 </body>

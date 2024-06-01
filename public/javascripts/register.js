@@ -24,49 +24,42 @@ function checkWorker() {
 }
 checkWorker()
 
-const login = document.forms[1]
-const signup = document.forms[0]
-const toggleFormBtn = document.getElementById('toggleForm')
-let formActive = 'login'
+const login = document.forms[0]
+const signup = document.forms[1]
 
-const signupContainer = document.getElementById('signup-container')
-const loginContainer = document.getElementById('login-container')
+const signupContainer = document.getElementById('signup')
+const loginContainer = document.getElementById('login')
+const formSwitch = document.getElementById('form-switch')
+const illustrateImg = document.getElementById('illustration-img')
 
-if (window.innerWidth < '800') {
-  signupContainer.style.display = 'none'
-}
+document.getElementById('form-switch').addEventListener('click', () => {
+  loginFormDisplay = document.getElementById('login').style.display
+
+  // show login form
+  if (loginFormDisplay === 'none') {
+    document.getElementById('login').style.display = 'flex'
+    document.getElementById('signup').style.display = 'none'
+    document.getElementById('form-heading').innerHTML = 'Log In'
+    document.getElementById('form-switch').innerHTML = 'signup instead'
+    illustrateImg.src = 'images/chatting.svg'
+    return
+  }
+
+  // show signup form
+  document.getElementById('signup').style.display = 'flex'
+  document.getElementById('login').style.display = 'none'
+  document.getElementById('form-heading').innerHTML = 'Sign Up'
+  document.getElementById('form-switch').innerHTML = 'login instead'
+  illustrateImg.src = 'images/messaging.svg'
+})
 
 document.getElementById('logo').addEventListener('click', () => {
   location.reload()
 })
 
-window.addEventListener('resize', () => {
-  if (window.innerWidth >= '800') {
-    signupContainer.style.height = '100%'
-    signupContainer.style.display = 'flex'
-    loginContainer.style.height = '100%'
-    loginContainer.style.display = 'flex'
-  } else {
-    if (formActive == 'login') {
-      // display login
-      loginContainer.style.height = '100%'
-      loginContainer.style.display = 'flex'
-      signupContainer.style.display = 'none'
-      toggleFormBtn.innerHTML = 'Signup'
-      formActive = 'login'
-    } else {
-      // display signup
-      signupContainer.style.height = '100%'
-      signupContainer.style.display = 'flex'
-      loginContainer.style.display = 'none'
-      toggleFormBtn.innerHTML = 'Login'
-      formActive = 'signup'
-    }
-  }
-})
-
 login.addEventListener('submit', (e) => {
   e.preventDefault()
+  console.log('logging in ..')
   let loginformValid
   // validation
   if (login.username.value == '') {
@@ -98,6 +91,8 @@ login.addEventListener('submit', (e) => {
 signup.addEventListener('submit', (e) => {
   let signupformValid
   e.preventDefault()
+  console.log('signing up ..')
+
   // validation
   if (signup.username.value.trim() == '') {
     signup.children[0].innerHTML = 'this field is required'
@@ -139,39 +134,7 @@ signup.addEventListener('submit', (e) => {
     signup.children[4].innerHTML = ''
     signupformValid = true
   }
-  if (signup.gender.value == '') {
-    signup.children[6].innerHTML = 'this field is required'
-    signupformValid = false
-  } else {
-    if (signup.gender.value == 'male' || signup.gender.value == 'female') {
-      signup.children[6].innerHTML = ''
-      signupformValid = true
-    } else {
-      signup.children[6].innerHTML = 'wrong input'
-      signupformValid = false
-    }
-  }
   if (signupformValid) {
     signup.submit()
   }
 })
-
-toggleFormBtn.addEventListener('click', toggleForm)
-
-function toggleForm() {
-  if (formActive == 'login') {
-    // display signup
-    signupContainer.style.height = '100%'
-    signupContainer.style.display = 'flex'
-    loginContainer.style.display = 'none'
-    toggleFormBtn.innerHTML = 'Login'
-    formActive = 'signup'
-  } else {
-    // display login
-    loginContainer.style.height = '100%'
-    loginContainer.style.display = 'flex'
-    signupContainer.style.display = 'none'
-    toggleFormBtn.innerHTML = 'Signup'
-    formActive = 'login'
-  }
-}
