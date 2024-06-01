@@ -20,7 +20,7 @@ export const validateSignUpCredentials = handleAsyncMdw(
     const saltRounds = await bcrypt.genSalt(10)
     const potentialUser: IUserProfileAttibutes = {
       username: _req.body.username,
-      fullname: _req.body.fullname,
+      fullname: _req.body.username,
       password: await bcrypt.hash(_req.body.password, saltRounds),
       email: _req.body.email,
       bio: ''
