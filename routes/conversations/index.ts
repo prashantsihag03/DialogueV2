@@ -17,7 +17,6 @@ import attachmentsRouter from './attachment.js'
 const conversationsRouter = Router()
 
 // Router level Middlewares
-conversationsRouter.use(AuthMdw.validateTokens)
 conversationsRouter.use(AuthMdw.rejectUnAuthenticated)
 
 // Routes

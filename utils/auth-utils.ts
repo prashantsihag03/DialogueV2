@@ -21,8 +21,8 @@ const isAuthenticated = (_res: Response): boolean => {
 const getAuthenticatedUserData = (_res: Response): { sessionId: string; username: string } | null => {
   if (!isAuthenticated(_res)) return null
   return {
-    sessionId: _res.locals.sessionId as string,
-    username: _res.locals.username as string
+    sessionId: _res.locals?.sessionTokens?.refreshToken as string,
+    username: _res.locals.jwt.username as string
   }
 }
 

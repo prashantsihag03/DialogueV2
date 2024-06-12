@@ -8,16 +8,18 @@ import authRouter from './routes/auth.js'
 import errorRouter from './routes/error.js'
 import AuthUtils from './utils/auth-utils.js'
 import profileRouter from './routes/profile.js'
-import userRouter from './routes/users.js'
 import morgan from 'morgan'
 import { fileURLToPath } from 'url'
 import conversationsRouter from './routes/conversations/index.js'
+import type PresenceSystem from './Socket/PresenceSystem.js'
+import { recordLastSeen } from './middlewares/commons.js'
+import UserRouter from './routes/users.js'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __dirname = path.dirname(__filename)
 
-export default function (): Express.Application {
+export default function (presenceSystem: PresenceSystem): Express.Application {
   const app: express.Application = express()
 
   const options = {
@@ -42,10 +44,11 @@ export default function (): Express.Application {
   app.use(express.urlencoded({ extended: false }))
 
   // Authentication Middleware ------------------------
-  // none so far
+  app.use(AuthMdw.validateTokens)
+  app.use(recordLastSeen(presenceSystem))
 
   // Routes
-  app.get('/', AuthMdw.validateTokens, (_req, _res) => {
+  app.get('/', (_req, _res) => {
     if (!AuthUtils.isAuthenticated(_res)) {
       _res.redirect('/register')
       return
@@ -53,14 +56,14 @@ export default function (): Express.Application {
     _res.redirect('/home')
   })
 
-  app.get('/home', AuthMdw.validateTokens, AuthMdw.redirectUnAuthenticated, (_req, _res, next) => {
+  app.get('/home', AuthMdw.redirectUnAuthenticated, (_req, _res, next) => {
     _res.sendFile('home.html', options)
   })
 
   app.use('/', authRouter)
   app.use('/conversations', conversationsRouter)
   app.use('/profile', profileRouter)
-  app.use('/user', userRouter)
+  app.use('/user', UserRouter(presenceSystem))
   app.use(errorRouter)
 
   return app

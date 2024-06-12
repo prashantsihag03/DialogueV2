@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/indent */
 import { type Socket } from 'socket.io'
 import { type ExtendedError } from 'socket.io/dist/namespace'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
 import appLogger from '../appLogger.js'
 import JwtUtils from '../utils/jwt-utils/index.js'
 import SessionUtils from '../utils/session-utils.js'
+import type PresenceSystem from './PresenceSystem.js'
 
-const socketAuthMDW = (
+export const socketAuthMDW = (
   socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
   next: (err?: ExtendedError) => void
 ): void => {
@@ -39,4 +41,14 @@ const socketAuthMDW = (
     })
 }
 
-export default socketAuthMDW
+export const socketSessionRecordLastActivity =
+  (presenceSystem: PresenceSystem) =>
+  (
+    socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
+    next: (err?: ExtendedError) => void
+  ): void => {
+    if (socket.data?.jwt?.username != null) {
+      presenceSystem.updateSocketsessionLastActivity(socket.data.jwt.username, socket.id)
+    }
+    next()
+  }

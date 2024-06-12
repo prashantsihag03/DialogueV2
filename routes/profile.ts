@@ -29,7 +29,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 // Router level Middlewares
-profileRouter.use(AuthMdw.validateTokens)
 profileRouter.use(AuthMdw.rejectUnAuthenticated)
 
 profileRouter.get(

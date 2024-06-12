@@ -7,7 +7,7 @@ import { signup, validateSignUpCredentials } from '../middlewares/signup.js'
 const authRouter = Router()
 
 // Router level Middlewares
-authRouter.use(AuthMdw.validateTokens)
+// none so far
 
 authRouter.get('/register', AuthMdw.register)
 authRouter.post('/login', rejectInValidLoginCredentials, authenticateLoginCredentials, login)

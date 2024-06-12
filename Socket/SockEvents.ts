@@ -41,7 +41,8 @@ export default class SockEvents {
       return
     }
     this.presenceSystem.addUserSocketSession(socket.data.jwt.username, socket.id, {
-      refreshTokenId: socket.data.refreshToken
+      refreshTokenId: socket.data.refreshToken,
+      lastActivity: new Date().toISOString()
     })
   }
 

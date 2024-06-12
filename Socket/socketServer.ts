@@ -2,10 +2,10 @@ import helmet from 'helmet'
 import type http from 'http'
 import { Server, type ServerOptions } from 'socket.io'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
-import PresenceSystem from './PresenceSystem.js'
-import socketAuthMDW from './middleware.js'
+import { socketAuthMDW, socketSessionRecordLastActivity } from './middleware.js'
 import SockEvents from './SockEvents.js'
 import { handleSocketEvent } from '../utils/error-utils.js'
+import type PresenceSystem from './PresenceSystem.js'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -18,15 +18,15 @@ const socketServerOptions: Partial<ServerOptions> = {
  * Sets up and initialises a SocketIO server along with assigning it with all middlewares, and events.
  * @param httpServer
  */
-export default function (httpServer: httpServer): SocketIoServer {
+export default function (httpServer: httpServer, presenceSystem: PresenceSystem): SocketIoServer {
   const SocketIO = new Server(httpServer, socketServerOptions)
 
-  const presenceSystem = new PresenceSystem()
   const sockEvents = new SockEvents(presenceSystem, SocketIO)
 
   // Socket Level Middlewares
   SocketIO.engine.use(helmet())
   SocketIO.use(socketAuthMDW)
+  SocketIO.use(socketSessionRecordLastActivity(presenceSystem))
 
   // SocketIO Events
   SocketIO.on('connection', (socket) => {
