@@ -40,10 +40,16 @@ export default function (httpServer: httpServer, presenceSystem: PresenceSystem)
         await sockEvents.onMessage(socket, data, callback)
       })
     )
-    socket.on('initiateCall', async (data, callback) => {
+    socket.on('call', async (data, callback) => {
+      await sockEvents.onCalling(socket, data, callback, SocketIO)
+    })
+    socket.on('reject call', async (data, callback) => {
+      await sockEvents.onCallReject(socket, data, callback, SocketIO)
+    })
+    socket.on('signal', async (data, callback) => {
       await sockEvents.onOffer(socket, data, callback, SocketIO)
     })
-    socket.on('answerCall', async (data, callback) => {
+    socket.on('answer', async (data, callback) => {
       await sockEvents.onAnswer(socket, data, callback, SocketIO)
     })
   })

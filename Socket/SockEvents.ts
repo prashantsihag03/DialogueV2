@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-delimiter-style */
 /* eslint-disable @typescript-eslint/space-before-function-paren */
 import { v4 as uuidv4 } from 'uuid'
 import { type Server } from 'socket.io'
@@ -73,7 +74,7 @@ export default class SockEvents {
       // throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
     }
 
-    const socketSessions = this.presenceSystem.getAllUserSocketSessions(data.receiver)
+    const socketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.receiver)
     const socketIds = Object.keys(socketSessions)
 
     const allSockets = await this.socketServer.fetchSockets()
@@ -142,6 +143,93 @@ export default class SockEvents {
   }
 
   /**
+   * When user is attempting to call another user. This takes place before any signalling.
+   * This event is responsible for ensuring that user that is being called accepts the call first,
+   * which will then initiate the signalling process.
+   */
+  async onCalling(
+    socket: SocketRef,
+    data: { userToCall: string },
+    ackCallback: any,
+    SocketIO: SocketServerRef
+  ): Promise<void> {
+    if (socket.data.jwt.username == null || socket.data.refreshToken == null || data.userToCall == null) {
+      appLogger.error('Call failed due to invalid data.')
+      ackCallback({
+        status: 'failed',
+        message: 'invalid call information provided'
+      })
+      return
+    }
+
+    // check if user is online.
+    const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.userToCall)
+
+    // if not, call ack with appropriate msg
+    if (Object.keys(receiverUserSocketSessions).length < 1) {
+      ackCallback({
+        status: 'failed',
+        message: 'user is not online'
+      })
+    }
+
+    // if online, send an event to user with
+    const userToCallSocketId = Object.keys(receiverUserSocketSessions)[0]
+    const allSockets = await SocketIO.fetchSockets()
+    const userToCallSocket = allSockets.find((socket) => socket.id === userToCallSocketId)
+    if (userToCallSocket == null) {
+      ackCallback({
+        status: 'failed',
+        message: 'user is not online'
+      })
+      return
+    }
+
+    userToCallSocket.emit('receiving call', { callerUserId: socket.data.jwt.username }, () => {
+      ackCallback({
+        status: 'success',
+        message: `call sent to ${data.userToCall}`
+      })
+    })
+  }
+
+  async onCallReject(
+    socket: SocketRef,
+    data: { userToAnswer: string },
+    ackCallback: any,
+    SocketIO: SocketServerRef
+  ): Promise<void> {
+    if (socket.data.jwt.username == null || socket.data.refreshToken == null || data.userToAnswer == null) {
+      appLogger.error('Call failed due to invalid data.')
+      ackCallback({
+        status: 'Failed to initiate call.',
+        message: 'Invalid call information provided.'
+      })
+      return
+    }
+    const userToAnswer = data.userToAnswer
+
+    // find userToAnswer socket
+    const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(userToAnswer)
+    if (Object.keys(receiverUserSocketSessions).length < 1) {
+      ackCallback({
+        status: 'Failed!',
+        message: 'User to answer is not online.'
+      })
+    }
+
+    const userToAnswerSocketId = Object.keys(receiverUserSocketSessions)[0]
+    const allSockets = await SocketIO.fetchSockets()
+    const userToAnswerSocket = allSockets.find((socket) => socket.id === userToAnswerSocketId)
+    userToAnswerSocket?.emit('call rejected', { from: socket.data.jwt.username }, (ack: any) => {
+      ackCallback({
+        status: 'Success.',
+        message: `Rejecting call sent to ${userToAnswer}`
+      })
+    })
+  }
+
+  /**
    * When user is attempting to call someone
    */
   async onOffer(socket: SocketRef, data: InitiateCall, ackCallback: any, SocketIO: SocketServerRef): Promise<void> {
@@ -161,7 +249,7 @@ export default class SockEvents {
 
     const userToCall = data.userToCall
 
-    const receiverUserSocketSessions = this.presenceSystem.getAllUserSocketSessions(userToCall)
+    const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(userToCall)
     if (Object.keys(receiverUserSocketSessions).length < 1) {
       ackCallback({
         status: 'Failed to initiate call.',
@@ -172,10 +260,10 @@ export default class SockEvents {
     const userToCallSocketId = Object.keys(receiverUserSocketSessions)[0]
     const allSockets = await SocketIO.fetchSockets()
     const userToCallSocket = allSockets.find((socket) => socket.id === userToCallSocketId)
-    userToCallSocket?.emit('incoming call', { callerUserId: socket.data.jwt.username, offer: data.offer }, () => {
+    userToCallSocket?.emit('offer signal', { callerUserId: socket.data.jwt.username, offer: data.offer }, () => {
       ackCallback({
         status: 'Success.',
-        message: `Incoming call sent to ${userToCall}`
+        message: `offer signal sent to ${userToCall}`
       })
     })
   }
@@ -203,7 +291,7 @@ export default class SockEvents {
       return
     }
 
-    const receiverUserSocketSessions = this.presenceSystem.getAllUserSocketSessions(data.from)
+    const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.from)
     if (Object.keys(receiverUserSocketSessions).length < 1) {
       ackCallback({
         status: 'Failed to send ice candidate.',
@@ -244,7 +332,7 @@ export default class SockEvents {
     const userToAnswer = data.userToAnswer
 
     // find userToAnswer socket
-    const receiverUserSocketSessions = this.presenceSystem.getAllUserSocketSessions(userToAnswer)
+    const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(userToAnswer)
     if (Object.keys(receiverUserSocketSessions).length < 1) {
       ackCallback({
         status: 'Failed to initiate call.',
@@ -255,10 +343,10 @@ export default class SockEvents {
     const userToAnswerSocketId = Object.keys(receiverUserSocketSessions)[0]
     const allSockets = await SocketIO.fetchSockets()
     const userToAnswerSocket = allSockets.find((socket) => socket.id === userToAnswerSocketId)
-    userToAnswerSocket?.emit('answering call', { from: socket.data.jwt.username, answer: data.answer }, (ack: any) => {
+    userToAnswerSocket?.emit('answer signal', { from: socket.data.jwt.username, answer: data.answer }, (ack: any) => {
       ackCallback({
         status: 'Success.',
-        message: `Answering call sent to ${userToAnswer}`
+        message: `Answer signal sent to ${userToAnswer}`
       })
     })
   }

@@ -53,7 +53,7 @@ class PresenceSystem {
    * and returns record of all active socket session for given user with
    * socket id as keys and session details as values
    */
-  getAllUserSocketSessions(userId: string): Record<string, UserSocketSession> {
+  getAllSocketSessionsByUser(userId: string): Record<string, UserSocketSession> {
     if (this.connectedUsers[userId] == null) return {}
     return this.connectedUsers[userId].connections
   }
