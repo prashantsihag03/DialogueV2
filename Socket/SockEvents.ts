@@ -229,6 +229,41 @@ export default class SockEvents {
     })
   }
 
+  async onCallCancel(
+    socket: SocketRef,
+    data: { userToCancelCallWith: string },
+    ackCallback: any,
+    SocketIO: SocketServerRef
+  ): Promise<void> {
+    if (socket.data.jwt.username == null || socket.data.refreshToken == null || data.userToCancelCallWith == null) {
+      appLogger.error('Call Cancel failed due to invalid data.')
+      ackCallback({
+        status: 'Failed to cancel call.',
+        message: 'Invalid call information provided.'
+      })
+      return
+    }
+    const userToCancelCallWith = data.userToCancelCallWith
+
+    const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(userToCancelCallWith)
+    if (Object.keys(receiverUserSocketSessions).length < 1) {
+      ackCallback({
+        status: 'Failed!',
+        message: 'User to cancel call with is not online.'
+      })
+    }
+
+    const userToCancelCallWithSocketId = Object.keys(receiverUserSocketSessions)[0]
+    const allSockets = await SocketIO.fetchSockets()
+    const userToCancelCallWithSocket = allSockets.find((socket) => socket.id === userToCancelCallWithSocketId)
+    userToCancelCallWithSocket?.emit('call cancelled', { from: socket.data.jwt.username }, (ack: any) => {
+      ackCallback({
+        status: 'Success.',
+        message: `Cancelling call sent to ${userToCancelCallWith}`
+      })
+    })
+  }
+
   /**
    * When user is attempting to call someone
    */

@@ -52,6 +52,9 @@ export default function (httpServer: httpServer, presenceSystem: PresenceSystem)
     socket.on('answer', async (data, callback) => {
       await sockEvents.onAnswer(socket, data, callback, SocketIO)
     })
+    socket.on('cancel call', async (data, callback) => {
+      await sockEvents.onCallCancel(socket, data, callback, SocketIO)
+    })
   })
 
   return SocketIO
