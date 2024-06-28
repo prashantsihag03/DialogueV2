@@ -58,6 +58,23 @@ class PresenceSystem {
     return this.connectedUsers[userId].connections
   }
 
+  /**
+   * Fetches record of all active socket sessions for all provided users.
+   * @param userIds List of userIds whose active socket sessions will be fetched
+   * @returns empty list if no active socket ids for all given userIds,
+   * and returns list of all active socket ids for all given user with
+   */
+  getAllSocketSessionIdsByUsers(userIds: string[]): string[] {
+    const result: string[] = []
+    userIds.forEach((userId) => {
+      if (this.connectedUsers[userId] != null) {
+        const socketIds = Object.keys(this.connectedUsers[userId].connections)
+        result.push(...socketIds)
+      }
+    })
+    return result
+  }
+
   removeUserSocketSession(userId: string, connectionId: string): void {
     if (this.connectedUsers[userId].connections[connectionId] == null) return
     // TODO: Revert this disable rule. Dangerous. Move datatype to Map or Set

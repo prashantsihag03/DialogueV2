@@ -33,7 +33,13 @@ const validateTokens = async (_req: Request, _res: Response, next: NextFunction)
     next()
     return
   } catch (e: any) {
-    appLogger.error('Error occurred while validating tokens!')
+    if (e.name != null && e.name === 'JsonWebTokenError' && e.message != null && e.message === 'invalid signature') {
+      appLogger.warn('Request received with invalid jwt signature. Cleared cookie and redirected to /')
+      _res.clearCookie(SESSION_COOKIE_NAME)
+      _res.redirect('/')
+      return
+    }
+    appLogger.error(`Error occurred while validating tokens! ${JSON.stringify(e)}`)
     _res.status(500).send('Something went wrong! Please try again later!')
   }
 }

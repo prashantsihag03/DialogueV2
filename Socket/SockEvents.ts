@@ -51,7 +51,12 @@ export default class SockEvents {
     this.presenceSystem.removeUserSocketSession(socket.data.jwt.username, socket.id)
   }
 
-  async onMessage(socket: SocketRef, data: any, ackCallback: any): Promise<void> {
+  async onMessage(
+    socket: SocketRef,
+    data: { conversationId: string; text: string; file: any; localMessageId: string },
+    ackCallback: any,
+    sendMsgToSender: boolean
+  ): Promise<void> {
     if (
       socket.data.jwt.username == null ||
       socket.data.refreshToken == null ||
@@ -74,15 +79,27 @@ export default class SockEvents {
       // throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
     }
 
-    const socketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.receiver)
-    const socketIds = Object.keys(socketSessions)
+    const convoMemberIds = convoMembers.Items.map((member) => member.memberId)
+
+    const processedConvoMemberIds: string[] = []
+    convoMemberIds.forEach((memberId) => {
+      if (memberId === socket.data.jwt.username) {
+        if (sendMsgToSender) {
+          processedConvoMemberIds.push(memberId)
+        }
+      } else {
+        processedConvoMemberIds.push(memberId)
+      }
+    })
+    appLogger.warn(`Sending to processedConvoMemberIds: ${JSON.stringify(processedConvoMemberIds)}`)
+    const socketIds = this.presenceSystem.getAllSocketSessionIdsByUsers(processedConvoMemberIds)
 
     const allSockets = await this.socketServer.fetchSockets()
 
     const relevantSockets = allSockets.filter((sock) => socketIds.includes(sock.id))
 
     const emitMsg: any = {
-      conversationId: data.conversationId as string,
+      conversationId: data.conversationId,
       message: data.text,
       messageId: `message-${uuidv4()}`,
       senderId: socket.data.jwt.username as string,
@@ -149,11 +166,16 @@ export default class SockEvents {
    */
   async onCalling(
     socket: SocketRef,
-    data: { userToCall: string },
+    data: { userToCall: string; conversationId: string },
     ackCallback: any,
     SocketIO: SocketServerRef
   ): Promise<void> {
-    if (socket.data.jwt.username == null || socket.data.refreshToken == null || data.userToCall == null) {
+    if (
+      socket.data.jwt?.username == null ||
+      socket.data.refreshToken == null ||
+      data.userToCall == null ||
+      data.conversationId == null
+    ) {
       appLogger.error('Call failed due to invalid data.')
       ackCallback({
         status: 'failed',
@@ -161,6 +183,13 @@ export default class SockEvents {
       })
       return
     }
+
+    await this.onMessage(
+      socket,
+      { conversationId: data.conversationId, file: null, localMessageId: '', text: 'Video Call' },
+      () => {},
+      true
+    )
 
     // check if user is online.
     const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.userToCall)

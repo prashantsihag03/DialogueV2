@@ -37,7 +37,7 @@ export default function (httpServer: httpServer, presenceSystem: PresenceSystem)
     socket.on(
       'message',
       handleSocketEvent(async (data, callback) => {
-        await sockEvents.onMessage(socket, data, callback)
+        await sockEvents.onMessage(socket, data, callback, false)
       })
     )
     socket.on('call', async (data, callback) => {
