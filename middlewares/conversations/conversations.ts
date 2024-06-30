@@ -69,7 +69,7 @@ export const transformConversationDataIntoQuickView = (_req: Request, _res: Resp
       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       conversationName: convoInfo.isGroup === true ? convoInfo.conversationName : userConvo.conversationName,
       lastMessage: lastMsgContent ?? '',
-      lastMessageTime: lastMessage?.timeStamp,
+      lastMessageTime: lastMessage?.msg_timeStamp,
       unseen: 0,
       lastMessageSenderId: lastMessage?.senderId ?? ''
     })
@@ -248,12 +248,14 @@ export const startNewConversation = handleAsyncMdw(
     const memRes = await addConversationMember({
       conversationId: newConversation.conversationId,
       memberId: _res.locals.jwt.username,
-      JoinedAt: newConversation.createdAt
+      JoinedAt: newConversation.createdAt,
+      timeStamp: newConversation.createdAt
     })
     const mem2Res = await addConversationMember({
       conversationId: newConversation.conversationId,
       memberId: _req.body.conversationUserId,
-      JoinedAt: newConversation.createdAt
+      JoinedAt: newConversation.createdAt,
+      timeStamp: newConversation.createdAt
     })
 
     if (memRes.$metadata.httpStatusCode !== 200 || mem2Res.$metadata.httpStatusCode !== 200) {
@@ -267,8 +269,9 @@ export const startNewConversation = handleAsyncMdw(
       conversationId: newConversation.conversationId,
       message: `${newConversation.createdBy} created this conversation.`,
       messageId: `message-${uuidv4()}`,
+      type: 'message',
       senderId: newConversation.createdBy,
-      timeStamp: newConversation.createdAt
+      msg_timeStamp: newConversation.createdAt
     })
 
     if (response3.$metadata.httpStatusCode !== 200) {

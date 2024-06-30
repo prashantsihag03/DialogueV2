@@ -18,6 +18,7 @@ import path from 'node:path'
 import { fileTypeFromBuffer } from 'file-type'
 
 import { fileURLToPath } from 'url'
+import { type IConversationMessageAttributes } from '../models/conversations/types.js'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -51,6 +52,15 @@ export default class SockEvents {
     this.presenceSystem.removeUserSocketSession(socket.data.jwt.username, socket.id)
   }
 
+  async emit(eventName: 'message', eventData: any, socketIdsToEmit: string[]): Promise<void> {
+    const socketIds = this.presenceSystem.getAllSocketSessionIdsByUsers(socketIdsToEmit)
+    const allSockets = await this.socketServer.fetchSockets()
+    const relevantSockets = allSockets.filter((sock) => socketIds.includes(sock.id))
+    relevantSockets.forEach((filteredSocket) => {
+      filteredSocket.emit(eventName, eventData)
+    })
+  }
+
   async onMessage(
     socket: SocketRef,
     data: { conversationId: string; text: string; file: any; localMessageId: string },
@@ -74,12 +84,10 @@ export default class SockEvents {
       throw new CustomError('Retrieval of conversation members for permission check failed', { code: 500 })
     }
 
-    if (!convoMembers.Items.includes((member: { memberId: any }) => member.memberId === socket.data.jwt.username)) {
-      // TODO: Uncomment following check once members are being added to convo at the time of convo creation
-      // throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
-    }
-
     const convoMemberIds = convoMembers.Items.map((member) => member.memberId)
+    if (!convoMemberIds.includes(socket.data.jwt.username)) {
+      throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
+    }
 
     const processedConvoMemberIds: string[] = []
     convoMemberIds.forEach((memberId) => {
@@ -91,19 +99,14 @@ export default class SockEvents {
         processedConvoMemberIds.push(memberId)
       }
     })
-    appLogger.warn(`Sending to processedConvoMemberIds: ${JSON.stringify(processedConvoMemberIds)}`)
-    const socketIds = this.presenceSystem.getAllSocketSessionIdsByUsers(processedConvoMemberIds)
 
-    const allSockets = await this.socketServer.fetchSockets()
-
-    const relevantSockets = allSockets.filter((sock) => socketIds.includes(sock.id))
-
-    const emitMsg: any = {
+    const emitMsg: IConversationMessageAttributes = {
       conversationId: data.conversationId,
       message: data.text,
       messageId: `message-${uuidv4()}`,
       senderId: socket.data.jwt.username as string,
-      timeStamp: Date.now()
+      msg_timeStamp: Date.now(),
+      type: 'message'
     }
 
     if (data.file != null) {
@@ -140,9 +143,7 @@ export default class SockEvents {
       return
     }
 
-    relevantSockets.forEach((filteredSocket) => {
-      filteredSocket.emit('message', emitMsg)
-    })
+    await this.emit('message', emitMsg, processedConvoMemberIds)
 
     ackCallback({
       status: 'success',
@@ -151,7 +152,7 @@ export default class SockEvents {
         message: emitMsg.message,
         messageId: emitMsg.messageId,
         senderId: emitMsg.senderId,
-        timeStamp: emitMsg.timeStamp,
+        timeStamp: emitMsg.msg_timeStamp,
         status: 'sent',
         file: emitMsg.file,
         localMessageId: data.localMessageId ?? ''
@@ -184,12 +185,39 @@ export default class SockEvents {
       return
     }
 
-    await this.onMessage(
-      socket,
-      { conversationId: data.conversationId, file: null, localMessageId: '', text: 'Video Call' },
-      () => {},
-      true
-    )
+    // check if user is part of the conversation or not
+    const convoMembers = await getConversationMembers(data.conversationId)
+    if (convoMembers.$metadata.httpStatusCode !== 200 || convoMembers.Items == null) {
+      throw new CustomError('Retrieval of conversation members for permission check failed', { code: 500 })
+    }
+
+    const convoMemberIds = convoMembers.Items.map((member) => member.memberId)
+    if (!convoMemberIds.includes(socket.data.jwt.username)) {
+      throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
+    }
+
+    const msgUuid = uuidv4()
+    const emitMsg: IConversationMessageAttributes = {
+      conversationId: data.conversationId,
+      message: 'Video Call',
+      messageId: `message-${msgUuid}`,
+      senderId: socket.data.jwt.username as string,
+      msg_timeStamp: Date.now(),
+      type: 'call'
+    }
+
+    const response3 = await addMessageToConversation(emitMsg)
+    // Todo add a CALL#id representative of this message to database as well
+
+    if (response3.$metadata.httpStatusCode !== 200) {
+      ackCallback({
+        status: 'failed',
+        message: 'Internal error.'
+      })
+      return
+    }
+
+    await this.emit('message', emitMsg, convoMemberIds)
 
     // check if user is online.
     const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.userToCall)

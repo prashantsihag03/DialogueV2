@@ -7,7 +7,7 @@ import {
   getAllConvoMsgsSortByTimeStamp,
   getMsgObject
 } from '../models/conversations/conversations.js'
-import { type IConversationMessageAttributes } from '../models/conversations/types.js'
+import { type MESSAGE_TYPE, type IConversationMessageAttributes } from '../models/conversations/types.js'
 import ValidationUtils from '../utils/validation-utils.js'
 import CustomError from '../utils/CustomError.js'
 import fs from 'node:fs/promises'
@@ -21,6 +21,7 @@ interface CleanedMessage {
   source: 'outgoing' | 'incoming'
   text: string
   file?: string
+  type: MESSAGE_TYPE
 }
 
 export const getAllMessages = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -84,8 +85,9 @@ export const transformDynamoMsg = async (_req: Request, _res: Response, next: Ne
       senderUserId: _res.locals.messages[_res.locals.conversationId][index].senderId,
       source: senderId === _res.locals.jwt.username ? 'outgoing' : 'incoming',
       text: _res.locals.messages[_res.locals.conversationId][index].message,
-      timestamp: _res.locals.messages[_res.locals.conversationId][index].timeStamp,
-      file: fileContents != null ? fileContents : undefined
+      timestamp: _res.locals.messages[_res.locals.conversationId][index].msg_timeStamp,
+      file: fileContents != null ? fileContents : undefined,
+      type: _res.locals.messages[_res.locals.conversationId][index].type
     })
   }
 
@@ -134,7 +136,8 @@ export const storeNewMessage = handleAsyncMdw(
     const newMessage: IConversationMessageAttributes = {
       conversationId: _req.body.conversationId,
       messageId: `message-${uuidv4()}`,
-      timeStamp: Date.now(),
+      type: 'message',
+      msg_timeStamp: Date.now(),
       message: _req.body.text,
       senderId: _req.body.senderUserId,
       file: fileContents != null ? fileContents : undefined

@@ -47,9 +47,9 @@ else
   # # aws dynamodb update-table --cli-input-json gsi-config.json
   aws dynamodb update-table \
       --table-name $TABLE_NAME \
-      --attribute-definitions AttributeName=conversationId,AttributeType=S AttributeName=timeStamp,AttributeType=N \
+      --attribute-definitions AttributeName=conversationId,AttributeType=S AttributeName=msg_timeStamp,AttributeType=N \
       --global-secondary-index-updates \
-          "[{\"Create\":{\"IndexName\": \"conversation-timestamp-message\",\"KeySchema\":[{\"AttributeName\":\"conversationId\",\"KeyType\":\"HASH\"},{\"AttributeName\":\"timeStamp\",\"KeyType\":\"RANGE\"}], \
+          "[{\"Create\":{\"IndexName\": \"conversation-timestamp-message\",\"KeySchema\":[{\"AttributeName\":\"conversationId\",\"KeyType\":\"HASH\"},{\"AttributeName\":\"msg_timeStamp\",\"KeyType\":\"RANGE\"}], \
           \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 5, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]" \
       --endpoint-url $DB_ENDPOINT \
       --output text > /dev/null
@@ -59,10 +59,10 @@ else
   fi
 fi
 
-##### Below code queries GSI for a particular conversation id
+#### Below code queries GSI for a particular conversation id
 # aws dynamodb query \
 #   --table-name "dialogueV2_base" \
 #   --index-name "conversation-timestamp-message" \
 #   --key-condition-expression "conversationId= :convoId" \
-#   --expression-attribute-values  '{":convoId":{"S":"85923d60-beb1-45cb-9593-b98e10751ed0"}}' \
+#   --expression-attribute-values  '{":convoId":{"S":"bd0e6fdb-c99c-454d-8d52-a65fc953a8d2"}}' \
 #   --endpoint-url $DB_ENDPOINT

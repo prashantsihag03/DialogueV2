@@ -14,12 +14,15 @@ export interface IConversationInfoAttributes {
   createdAt: number // is there a datetime type in dynamodb
 }
 
+export type MESSAGE_TYPE = 'message' | 'call'
+
 export interface IConversationMessageAttributes {
   conversationId: string
   messageId: string
   senderId: string
   message: string
-  timeStamp: number // is there a datetime type in dynamodb
+  type: MESSAGE_TYPE
+  msg_timeStamp: number // is there a datetime type in dynamodb
   attachment?: string // id of attachment stored on s3
   /**
    * Deprecated
@@ -32,6 +35,7 @@ export interface IConversationMemberAttributes {
   conversationId: string
   memberId: string
   JoinedAt: number // is there a datetime type in dynamodb
+  timeStamp: number
 }
 
 export interface IConversationInfoKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof INFO_PREFIX> {}
