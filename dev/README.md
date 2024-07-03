@@ -2,18 +2,20 @@
 
 This directory holds development documentations and development utility scripts for this project.
 
-## C4 Architecture Diagrams
+# Database Script
 
-<details>
-  <summary><b>Context Diagram</b></summary>
+Scripts directory holds bash scripts that can be used to create, and delete database tables and indexes.
 
-![Context Diagram](/dev/images/Project%20Diagrams%20-%20Context.jpg?raw=true 'Dialogue V2 C4 Context Architecture Diagram')
+The scripts are by default targetted towards local dynamodb.
 
-</details></br>
+DB_ENDPOINT variable can be updated in scripts to target actual AWS resource assuming AWS credentials are provided with appropriate permissions.
 
-<details>
-  <summary><b>Container Diagram</b></summary>
+Script to setup table initially or to validate current setup:
 
-![Container Diagram](/dev/images/Project%20Diagrams%20-%20Container.jpg?raw=true 'Dialogue V2 C4 Container Architecture Diagram')
+> setupTable.sh
 
-</details></br>
+Script to purge all data, and tables:
+
+> purgeTable.sh
+
+Both the scripts requires Dynamodb to be running.

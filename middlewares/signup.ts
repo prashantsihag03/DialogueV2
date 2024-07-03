@@ -6,6 +6,14 @@ import { type IUserProfileAttibutes } from '../models/user/types.js'
 import appLogger from '../appLogger.js'
 import { handleAsyncMdw } from '../utils/error-utils.js'
 import CustomError from '../utils/CustomError.js'
+import path from 'path'
+import fs from 'node:fs/promises'
+import { fileURLToPath } from 'url'
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __filename = fileURLToPath(import.meta.url)
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const __dirname = path.dirname(__filename)
 
 export const validateSignUpCredentials = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -17,13 +25,16 @@ export const validateSignUpCredentials = handleAsyncMdw(
       throw new CustomError('Missing required data!', { code: 400 })
     }
 
+    const fileContents = await fs.readFile(path.join(__dirname, '../public/images/no-profile-picture.jpg'))
+
     const saltRounds = await bcrypt.genSalt(10)
     const potentialUser: IUserProfileAttibutes = {
       username: _req.body.username,
       fullname: _req.body.username,
       password: await bcrypt.hash(_req.body.password, saltRounds),
       email: _req.body.email,
-      bio: ''
+      bio: '',
+      profileImg: fileContents.toString('base64')
     }
     _res.locals.validatedPotentialUserDetails = potentialUser
     next()

@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/indent */
 import { type Request, type Response, type NextFunction } from 'express'
 import { getUser, getUserProfileKey, updateSingleProfileKey, updateUser } from '../models/user/users.js'
 import CustomError from '../utils/CustomError.js'
-import appLogger from '../appLogger.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'node:fs/promises'
@@ -38,37 +38,48 @@ export const getProfile = async (_req: Request, _res: Response, next: NextFuncti
   })
 }
 
-export const updateProfile = async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
-  try {
+export const updateProfile = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const response = await getUser(_res.locals.profileToUpdate)
     if (response.$metadata.httpStatusCode !== 200 || response.Item == null) {
       throw new CustomError('User couldnt be found.', { code: 404 })
     }
 
     const updateUserResponse = await updateUser({
-      email: _res.locals.newProfileData.email ?? response.Item.email,
-      fullname: _res.locals.newProfileData.fullname ?? response.Item.fullname,
+      email:
+        _res.locals.newProfileData.email != null
+          ? _res.locals.newProfileData.email
+          : response.Item.email != null
+          ? response.Item.email
+          : '',
+      fullname:
+        _res.locals.newProfileData.fullname != null
+          ? _res.locals.newProfileData.fullname
+          : response.Item.fullname != null
+          ? response.Item.fullname
+          : '',
       password: response.Item.password,
       username: response.Item.username,
-      bio: _res.locals.newProfileData.bio ?? response.Item.bio,
-      profileImg: _res.locals.newProfileData.profileImg ?? response.Item.profileImg
+      bio:
+        _res.locals.newProfileData.bio != null
+          ? _res.locals.newProfileData.bio
+          : response.Item.bio != null
+          ? response.Item.bio
+          : '',
+      profileImg:
+        _res.locals.newProfileData.profileImg != null
+          ? _res.locals.newProfileData.profileImg
+          : response.Item.profileImg != null
+          ? response.Item.profileImg
+          : ''
     })
 
     if (updateUserResponse.$metadata.httpStatusCode !== 200) {
       throw new CustomError('User profile couldnt be updated.', { code: 500 })
     }
-
     _res.sendStatus(200)
-  } catch (err: any) {
-    if (err instanceof CustomError) {
-      appLogger.error(`${err.message}: ${JSON.stringify(err.stack)}`)
-      _res.status(err.details.code).send(err.message)
-      return
-    }
-    appLogger.error(`${JSON.stringify(err.stack)}`)
-    _res.status(500).send('Something went wrong. Please try again later')
   }
-}
+)
 
 export const getSingleProfileKey = handleAsyncMdw(
   async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {

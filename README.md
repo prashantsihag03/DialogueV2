@@ -27,7 +27,30 @@ This repository holds backend part of Dialogue's Version 2. To see its frontend,
 
 </details></br>
 
-# Development Setup:
+# Architecture Diagrams
+
+<details>
+  <summary><b>C4: Context Diagram</b></summary>
+
+![Base Table](https://www.prashantsihag.com/images/dialogue/context_diagram.jpg 'Dialogue V2 C4 Context Diagram')
+
+</details></br>
+<details>
+  <summary><b>C4: Container Diagram</b></summary>
+
+![Base Table](https://www.prashantsihag.com/images/dialogue/container_diagram.jpg 'Dialogue V2 C4 Container Diagram')
+
+</details></br>
+
+# Database Design
+
+DialogueV2 uses AWS's DynamoDB.
+
+Current database model uses Single-Table Design to keep cost limited and keep the usage of database within the free tier offered by AWS Dynamodb.
+
+More details on Database modelling for this project can be found [here](/dev/docs/DataModel.md)
+
+# Direct Development Setup:
 
 - Install Node v18.14.1
 - Clone this repository.
