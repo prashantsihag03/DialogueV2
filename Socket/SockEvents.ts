@@ -19,6 +19,8 @@ import { fileTypeFromBuffer } from 'file-type'
 
 import { fileURLToPath } from 'url'
 import { type IConversationMessageAttributes } from '../models/conversations/types.js'
+import { createCall } from '../models/conversations/call.js'
+import { emitEventToAllUserSessions } from '../utils/socket-utils.js'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -143,7 +145,13 @@ export default class SockEvents {
       return
     }
 
-    await this.emit('message', emitMsg, processedConvoMemberIds)
+    await emitEventToAllUserSessions(
+      this.presenceSystem,
+      this.socketServer,
+      processedConvoMemberIds,
+      'message',
+      emitMsg
+    )
 
     ackCallback({
       status: 'success',
@@ -196,20 +204,27 @@ export default class SockEvents {
       throw new CustomError('Illegal attempt to send message in conversation where user is not a member', { code: 401 })
     }
 
-    const msgUuid = uuidv4()
+    const callUuid = uuidv4()
     const emitMsg: IConversationMessageAttributes = {
       conversationId: data.conversationId,
       message: 'Video Call',
-      messageId: `message-${msgUuid}`,
+      messageId: `message-${callUuid}`,
       senderId: socket.data.jwt.username as string,
       msg_timeStamp: Date.now(),
       type: 'call'
     }
 
     const response3 = await addMessageToConversation(emitMsg)
-    // Todo add a CALL#id representative of this message to database as well
 
-    if (response3.$metadata.httpStatusCode !== 200) {
+    const response4 = await createCall({
+      callId: `call-${callUuid}`,
+      conversationId: emitMsg.conversationId,
+      endedAt: 0,
+      initiatorId: emitMsg.senderId,
+      startedAt: emitMsg.msg_timeStamp
+    })
+
+    if (response3.$metadata.httpStatusCode !== 200 || response4.$metadata.httpStatusCode !== 200) {
       ackCallback({
         status: 'failed',
         message: 'Internal error.'
@@ -217,7 +232,7 @@ export default class SockEvents {
       return
     }
 
-    await this.emit('message', emitMsg, convoMemberIds)
+    await emitEventToAllUserSessions(this.presenceSystem, this.socketServer, convoMemberIds, 'message', emitMsg)
 
     // check if user is online.
     const receiverUserSocketSessions = this.presenceSystem.getAllSocketSessionsByUser(data.userToCall)
@@ -321,9 +336,6 @@ export default class SockEvents {
     })
   }
 
-  /**
-   * When user is attempting to call someone
-   */
   async onOffer(socket: SocketRef, data: InitiateCall, ackCallback: any, SocketIO: SocketServerRef): Promise<void> {
     if (
       socket.data.jwt.username == null ||
@@ -360,9 +372,6 @@ export default class SockEvents {
     })
   }
 
-  /**
-   * When user is attempting to call someone
-   */
   async onIceCandidate(
     socket: SocketRef,
     data: IceCandidate,
@@ -403,9 +412,6 @@ export default class SockEvents {
     })
   }
 
-  /**
-   * When user has accepted call
-   */
   async onAnswer(socket: SocketRef, data: AnswerCall, ackCallback: any, SocketIO: SocketServerRef): Promise<void> {
     if (
       socket.data.jwt.username == null ||

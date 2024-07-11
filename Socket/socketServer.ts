@@ -8,7 +8,7 @@ import { handleSocketEvent } from '../utils/error-utils.js'
 import type PresenceSystem from './PresenceSystem.js'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
-type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+export type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 
 const socketServerOptions: Partial<ServerOptions> = {
   maxHttpBufferSize: 1e7

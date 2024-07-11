@@ -1,7 +1,5 @@
-import http from 'http'
 import createApp from './app.js'
 import { isDevEnv } from './constants.js'
-import initializeSocketServer from './Socket/socketServer.js'
 import { checkDbConnection } from './models/connection.js'
 import appLogger from './appLogger.js'
 import PresenceSystem from './Socket/PresenceSystem.js'
@@ -19,10 +17,7 @@ checkDbConnection(
 )
 
 const presenceSystem = new PresenceSystem()
-
-const app = createApp(presenceSystem)
-const server = http.createServer(app)
-initializeSocketServer(server, presenceSystem)
+const server = createApp(presenceSystem)
 
 server.listen(port, () => {
   if (isDevEnv) {

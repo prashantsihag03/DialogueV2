@@ -5,6 +5,7 @@ export const CONVERSATION_PREFIX = 'CONVERSATION#'
 export const INFO_PREFIX = 'INFO#'
 export const MESSAGE_PREFIX = 'MESSAGE#'
 export const MEMBER_PREFIX = 'MEMBER#'
+export const CALL_PREFIX = 'CALL#'
 
 export interface IConversationInfoAttributes {
   conversationId: string
@@ -38,10 +39,20 @@ export interface IConversationMemberAttributes {
   timeStamp: number
 }
 
+export interface IConversationCallAttributes {
+  conversationId: string
+  callId: string
+  initiatorId: string
+  startedAt: number
+  endedAt: number
+}
+
 export interface IConversationInfoKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof INFO_PREFIX> {}
 export interface IConversationMessageKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof MESSAGE_PREFIX> {}
 export interface IConversationMemberKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof MEMBER_PREFIX> {}
+export interface IConversationCallKeys extends IBaseTable<typeof CONVERSATION_PREFIX, typeof CALL_PREFIX> {}
 
 export interface IConversationInfoEntity extends IConversationInfoKeys, IConversationInfoAttributes {}
 export interface IConversationMessageEntity extends IConversationMessageKeys, IConversationMessageAttributes {}
 export interface IConversationMemberEntity extends IConversationMemberKeys, IConversationMemberAttributes {}
+export interface IConversationCallEntity extends IConversationCallKeys, IConversationCallAttributes {}
