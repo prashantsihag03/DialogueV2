@@ -24,6 +24,7 @@ import CustomError from '../../utils/CustomError.js'
 import { handleAsyncMdw } from '../../utils/error-utils.js'
 import { validateNewConversationData } from '../../utils/conversations-utils.js'
 import { isLoggedInUser } from '../../utils/login-utils.js'
+import type SocketServerEventEmitter from '../../Socket/SocketEmitter.js'
 
 export const transformConversationDataIntoQuickView = (_req: Request, _res: Response, next: NextFunction): void => {
   if (_res.locals.conversationIds == null || !Array.isArray(_res.locals.conversationIds)) {
@@ -278,6 +279,8 @@ export const startNewConversation = handleAsyncMdw(
       throw new CustomError('Something went wrong. Please try again later!', { code: 500 })
     }
 
+    const socketServerEventEmitter = _req.app.get('socketServerEventEmitter') as SocketServerEventEmitter
+    await socketServerEventEmitter.newConversation([_res.locals.jwt.username, _req.body.conversationUserId], {})
     _res.status(200).send()
   }
 )

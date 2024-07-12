@@ -21,6 +21,7 @@ import { fileURLToPath } from 'url'
 import { type IConversationMessageAttributes } from '../models/conversations/types.js'
 import { createCall } from '../models/conversations/call.js'
 import { emitEventToAllUserSessions } from '../utils/socket-utils.js'
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __filename = fileURLToPath(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/naming-convention

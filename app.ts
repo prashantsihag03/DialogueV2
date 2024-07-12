@@ -26,7 +26,7 @@ export default function (
 ): http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> {
   const app: express.Application = express()
   const server = http.createServer(app)
-  const socketServer = initializeSocketServer(server, presenceSystem)
+  const [socketServer, socketServerEventEmitter] = initializeSocketServer(server, presenceSystem)
 
   const options = {
     root: path.resolve('./public')
@@ -55,6 +55,7 @@ export default function (
 
   app.set('socketServer', socketServer)
   app.set('presenceSystem', presenceSystem)
+  app.set('socketServerEventEmitter', socketServerEventEmitter)
 
   // Routes ------------------------------------------------
   app.get('/', (_req, _res) => {

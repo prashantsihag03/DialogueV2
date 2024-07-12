@@ -6,6 +6,7 @@ import { socketAuthMDW, socketSessionRecordLastActivity } from './middleware.js'
 import SockEvents from './SockEvents.js'
 import { handleSocketEvent } from '../utils/error-utils.js'
 import type PresenceSystem from './PresenceSystem.js'
+import SocketServerEventEmitter from './SocketEmitter.js'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 export type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -18,9 +19,12 @@ const socketServerOptions: Partial<ServerOptions> = {
  * Sets up and initialises a SocketIO server along with assigning it with all middlewares, and events.
  * @param httpServer
  */
-export default function (httpServer: httpServer, presenceSystem: PresenceSystem): SocketIoServer {
+export default function (
+  httpServer: httpServer,
+  presenceSystem: PresenceSystem
+): [SocketIoServer, SocketServerEventEmitter] {
   const SocketIO = new Server(httpServer, socketServerOptions)
-
+  const socketServerEventEmitter = new SocketServerEventEmitter(presenceSystem, SocketIO)
   const sockEvents = new SockEvents(presenceSystem, SocketIO)
 
   // Socket Level Middlewares
@@ -57,5 +61,5 @@ export default function (httpServer: httpServer, presenceSystem: PresenceSystem)
     })
   })
 
-  return SocketIO
+  return [SocketIO, socketServerEventEmitter]
 }
