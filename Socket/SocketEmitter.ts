@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/space-before-function-paren */
 import { type Server } from 'socket.io'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
-import type PresenceSystem from './PresenceSystem'
-import { emitEventToAllUserSessions } from '../utils/socket-utils'
+import type PresenceSystem from './PresenceSystem.js'
+import { emitEventToAllUserSessions } from '../utils/socket-utils.js'
 
 export enum SocketServerEvents {
   newConversation = 'new-conversation'
