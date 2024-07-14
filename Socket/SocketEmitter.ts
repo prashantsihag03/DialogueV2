@@ -3,9 +3,10 @@ import { type Server } from 'socket.io'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
 import type PresenceSystem from './PresenceSystem.js'
 import { emitEventToAllUserSessions } from '../utils/socket-utils.js'
+import type ConversationQuickView from '../middlewares/conversations/types.js'
 
 export enum SocketServerEvents {
-  newConversation = 'new-conversation'
+  newConversation = 'new conversation'
 }
 
 export default class SocketServerEventEmitter {
@@ -20,7 +21,7 @@ export default class SocketServerEventEmitter {
     this.presenceSystem = presenceSystem
   }
 
-  async newConversation(users: string[], data: any): Promise<void> {
+  async newConversation(users: string[], data: ConversationQuickView): Promise<void> {
     await emitEventToAllUserSessions(
       this.presenceSystem,
       this.socketServer,

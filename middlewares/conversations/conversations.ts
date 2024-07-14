@@ -72,7 +72,8 @@ export const transformConversationDataIntoQuickView = (_req: Request, _res: Resp
       lastMessage: lastMsgContent ?? '',
       lastMessageTime: lastMessage?.msg_timeStamp,
       unseen: 0,
-      lastMessageSenderId: lastMessage?.senderId ?? ''
+      lastMessageSenderId: lastMessage?.senderId ?? '',
+      isGroup: false
     })
   }
 
@@ -280,7 +281,32 @@ export const startNewConversation = handleAsyncMdw(
     }
 
     const socketServerEventEmitter = _req.app.get('socketServerEventEmitter') as SocketServerEventEmitter
-    await socketServerEventEmitter.newConversation([_res.locals.jwt.username, _req.body.conversationUserId], {})
+    // create conversation object same as the one we have in getConversations route.
+    const convoQuickView: ConversationQuickView = {
+      conversationId: newConversation.conversationId,
+      isGroup: newConversation.isGroup,
+      conversationName: newConversation.isGroup ? newConversation.conversationName : _res.locals.jwt.username,
+      lastMessage: `${newConversation.createdBy} created this conversation.`,
+      lastMessageTime: newConversation.createdAt,
+      unseen: 0,
+      lastMessageSenderId: newConversation.createdBy
+    }
+
+    if (convoQuickView.isGroup) {
+      await socketServerEventEmitter.newConversation(
+        [_res.locals.jwt.username, newConversation.conversationId],
+        convoQuickView
+      )
+    } else {
+      await socketServerEventEmitter.newConversation([_req.body.conversationUserId], {
+        ...convoQuickView,
+        conversationName: _res.locals.jwt.username
+      })
+      await socketServerEventEmitter.newConversation([_res.locals.jwt.username], {
+        ...convoQuickView,
+        conversationName: _req.body.conversationUserId
+      })
+    }
     _res.status(200).send()
   }
 )

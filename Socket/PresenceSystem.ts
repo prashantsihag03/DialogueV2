@@ -80,6 +80,8 @@ class PresenceSystem {
     // TODO: Revert this disable rule. Dangerous. Move datatype to Map or Set
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete this.connectedUsers[userId].connections[connectionId]
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    if (Object.keys(this.connectedUsers[userId].connections).length === 0) delete this.connectedUsers[userId]
     appLogger.info(`Presence removed for ${userId} with id ${connectionId}}`)
   }
 
@@ -89,9 +91,9 @@ class PresenceSystem {
 
   updateSocketsessionLastActivity(userId: string, connectionId: string): void {
     if (this.connectedUsers[userId]?.connections[connectionId] == null) return
-    appLogger.info(`Presence based last activity updated for ${userId}`)
     this.connectedUsers[userId].lastActivity = new Date().toISOString()
     this.connectedUsers[userId].connections[connectionId].lastActivity = new Date().toISOString()
+    appLogger.info(`Presence based last activity updated for ${userId}`)
   }
 
   getUserLastActivity(userId: string): string | null {
@@ -99,6 +101,21 @@ class PresenceSystem {
       return null
     }
     return this.connectedUsers[userId].lastActivity
+  }
+
+  updateSocketSessionLastActivityByRefreshToken(userId: string, refreshToken: string): void {
+    if (this.connectedUsers[userId] == null) {
+      // this user has no active connections
+      return
+    }
+
+    Object.keys(this.connectedUsers[userId].connections).forEach((connId) => {
+      if (this.connectedUsers[userId].connections[connId].refreshTokenId === refreshToken) {
+        this.connectedUsers[userId].lastActivity = new Date().toISOString()
+        this.connectedUsers[userId].connections[connId].lastActivity = new Date().toISOString()
+        appLogger.info(`Presence based last activity updated for ${userId}`)
+      }
+    })
   }
 }
 

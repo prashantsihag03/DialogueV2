@@ -10,6 +10,11 @@ export const Sendok = (_req: Request, _res: Response, next: NextFunction): void 
 export const recordLastSeen =
   (presenceSystem: PresenceSystem) =>
   (_req: Request, _res: Response, next: NextFunction): void => {
-    // const userData = authUtils.getAuthenticatedUserData(_res)
+    if (_res.locals.authenticated === true) {
+      presenceSystem.updateSocketSessionLastActivityByRefreshToken(
+        _res.locals.jwt.username,
+        _res.locals.sessionTokens.refreshToken
+      )
+    }
     next()
   }
