@@ -79,33 +79,33 @@ document.getElementById('logo').addEventListener('click', () => {
 login.addEventListener('submit', async (e) => {
   e.preventDefault()
   updateFormStatus('')
-  let loginformValid
+
+  let validUsername = false
+  let validPassword = false
   // validation
   if (login.username.value == '') {
     login.children[0].innerHTML = 'this field is required'
-    loginformValid = false
+    validUsername = false
   } else {
     login.children[0].innerHTML = ''
-    loginformValid = true
+    validUsername = true
   }
   if (login.password.value == '') {
     login.children[2].innerHTML = 'this field is required'
-    loginformValid = false
+    validPassword = false
   } else {
     // validate values here
     if (login.password.value.length < 4) {
       login.children[2].innerHTML = 'password must be atleast 8 letters long'
-      loginformValid = false
+      validPassword = false
     } else {
       // good to go
       login.children[2].innerHTML = ''
-      loginformValid = true
+      validPassword = true
     }
   }
 
-  if (!loginformValid) {
-    return
-  }
+  if (validPassword === false || validUsername === false) return
 
   fetch('/login', {
     method: 'POST',
@@ -131,9 +131,15 @@ login.addEventListener('submit', async (e) => {
     })
 })
 
-const validateUsername = async (username) => {
+const isValidUsername = async (username) => {
   try {
-    if (username == null || username.length <= 1) {
+    if (username == null || username.trim().length <= 1) {
+      signup.children[0].innerHTML = 'this field is required'
+      return false
+    }
+
+    if (username.trim().length < 4) {
+      signup.children[0].innerHTML = 'Must include atleast 4 characters.'
       return false
     }
 
@@ -156,43 +162,39 @@ const validateUsername = async (username) => {
 
 signup.addEventListener('submit', async (e) => {
   updateFormStatus('')
-  let signupformValid
-  let userIdAvailable = false
+  let validUsername = false
+  let validEmail = false
+  let validPassword = false
   e.preventDefault()
 
   if (signup.password.value.trim() == '') {
     signup.children[2].innerHTML = 'this field is required'
-    signupformValid = false
+    validPassword = false
   } else {
     // validate values here
-    if (signup.password.value.length < 8) {
-      signup.children[2].innerHTML = 'Must include atleast 8 letters'
-      signupformValid = false
+    if (signup.password.value.length < 4) {
+      signup.children[2].innerHTML = 'Must include atleast 4 letters'
+      validPassword = false
     } else {
       // good to go
       signup.children[2].innerHTML = ''
-      signupformValid = true
+      validPassword = true
     }
   }
 
   if (signup.email.value == '') {
     login.children[4].innerHTML = 'this field is required'
-    signupformValid = false
+    validEmail = false
   } else {
     // validate values here
     signup.children[4].innerHTML = ''
-    signupformValid = true
+    validEmail = true
   }
 
   // validation
-  if (signup.username.value.trim() == '') {
-    signup.children[0].innerHTML = 'this field is required'
-    signupformValid = false
-  } else {
-    userIdAvailable = await validateUsername(signup.username.value)
-  }
+  validUsername = await isValidUsername(signup.username.value)
 
-  if (!signupformValid || !userIdAvailable) return
+  if (validEmail === false || validUsername === false || validPassword === false) return
 
   fetch('/signup', {
     method: 'POST',
