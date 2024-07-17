@@ -24,8 +24,11 @@
                 <img id="illustration-img" src="images/chatting.svg" width="70%" height="100%"/>
             </div>
         </section>
-        <section class="form-container">
-            <div class="option-container">
+        <section class="form-container" style="position: relative;">
+            <div id="form-status-container" style="position: absolute; top: -5rem; width: 100%; display: flex; justify-content: center; align-items: center; transition: all 0.5s ease-in-out;">
+                <p id="form-status" style="text-align: center; color: white; border-radius: 7px; padding: 0.5rem 3rem; font-size: 0.8rem; transition: all 0.5s ease-in-out;"></p>
+            </div>
+            <div class="option-container" >
                 <div class="options">
                     <p id="form-heading">Log In</p>
                     <!-- <ul>

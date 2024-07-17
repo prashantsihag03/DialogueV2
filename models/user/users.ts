@@ -75,6 +75,25 @@ export const updateSingleProfileKey = async (
   })
 }
 
+export const userExists = async (userId: string): Promise<boolean> => {
+  try {
+    const keys: IUserProfileKeys = {
+      pkid: `${USER_PREFIX}${userId}`,
+      skid: `${PROFILE_PREFIX}${userId}`
+    }
+    const response = await DynamoDbClient.get({
+      TableName: BASE_TABLE,
+      Key: keys,
+      ConsistentRead: true,
+      AttributesToGet: ['username']
+    })
+
+    return response.Item?.username != null && response.Item?.username === userId
+  } catch (err) {
+    return true
+  }
+}
+
 export const searchUser = async (partialUserId: string): Promise<QueryCommandOutput> => {
   return await DynamoDbClient.query({
     TableName: BASE_TABLE,

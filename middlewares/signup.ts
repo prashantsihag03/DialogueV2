@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import { type NextFunction, type Request, type Response } from 'express'
 import ValidationUtils from '../utils/validation-utils.js'
-import { createUser, updateAllUserSettingDb } from '../models/user/users.js'
+import { createUser, updateAllUserSettingDb, userExists } from '../models/user/users.js'
 import { type IUserProfileAttibutes } from '../models/user/types.js'
 import appLogger from '../appLogger.js'
 import { handleAsyncMdw } from '../utils/error-utils.js'
@@ -65,3 +65,11 @@ export const signup = handleAsyncMdw(async (_req: Request, _res: Response, next:
   appLogger.info('New user signed up successfully.')
   _res.redirect('/')
 })
+
+export const validateUsernameAvailability = handleAsyncMdw(
+  async (_req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    const userIdTaken = await userExists(_req.params.userId)
+    appLogger.warn(`User availability for ${_req.params.userId} is: ${userIdTaken ? 'taken' : 'available'}`)
+    _res.sendStatus(userIdTaken ? 404 : 200)
+  }
+)
