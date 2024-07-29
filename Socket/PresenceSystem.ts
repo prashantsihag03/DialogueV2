@@ -4,12 +4,12 @@ import appLogger from '../appLogger.js'
 
 interface UserSocketSession {
   refreshTokenId: string
-  lastActivity: string
+  lastActivity: string // this stores session based last activity
 }
 
 interface UserSocketSessionData {
   connections: Record<string, UserSocketSession>
-  lastActivity: string
+  lastActivity: string // this stores user level last activity
 }
 
 type ConnectedUsers = Record<string, UserSocketSessionData>
