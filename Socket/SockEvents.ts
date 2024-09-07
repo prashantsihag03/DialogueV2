@@ -449,4 +449,30 @@ export default class SockEvents {
       })
     })
   }
+
+  async onMutedVideo(
+    socket: SocketRef,
+    data: { userId: string; mutedVideo: boolean },
+    ackCallback: any,
+    SocketIO: SocketServerRef
+  ): Promise<void> {
+    if (data.userId == null || socket.data.jwt.username == null) return
+    await emitEventToAllUserSessions(this.presenceSystem, this.socketServer, [data.userId], 'mutedVideo', {
+      userId: socket.data.jwt.username,
+      mutedVideo: data.mutedVideo
+    })
+  }
+
+  async onMutedAudio(
+    socket: SocketRef,
+    data: { userId: string; mutedAudio: boolean },
+    ackCallback: any,
+    SocketIO: SocketServerRef
+  ): Promise<void> {
+    if (data.userId == null || socket.data.jwt.username == null) return
+    await emitEventToAllUserSessions(this.presenceSystem, this.socketServer, [data.userId], 'mutedAudio', {
+      userId: socket.data.jwt.username,
+      mutedAudio: data.mutedAudio
+    })
+  }
 }

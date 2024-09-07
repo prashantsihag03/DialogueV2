@@ -59,6 +59,12 @@ export default function (
     socket.on('cancel call', async (data, callback) => {
       await sockEvents.onCallCancel(socket, data, callback, SocketIO)
     })
+    socket.on('mutedAudio', async (data, callback) => {
+      await sockEvents.onMutedAudio(socket, data, callback, SocketIO)
+    })
+    socket.on('mutedVideo', async (data, callback) => {
+      await sockEvents.onMutedVideo(socket, data, callback, SocketIO)
+    })
   })
 
   return [SocketIO, socketServerEventEmitter]
