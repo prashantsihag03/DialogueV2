@@ -7,7 +7,6 @@ import SockEvents from './SockEvents.js'
 import { handleSocketEvent } from '../utils/error-utils.js'
 import type PresenceSystem from './PresenceSystem.js'
 import SocketServerEventEmitter from './SocketEmitter.js'
-import appLogger from '../appLogger.js'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 export type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
