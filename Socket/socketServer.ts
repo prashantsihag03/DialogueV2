@@ -7,12 +7,26 @@ import SockEvents from './SockEvents.js'
 import { handleSocketEvent } from '../utils/error-utils.js'
 import type PresenceSystem from './PresenceSystem.js'
 import SocketServerEventEmitter from './SocketEmitter.js'
+import appLogger from '../appLogger.js'
 
 type httpServer = http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
 export type SocketIoServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 
 const socketServerOptions: Partial<ServerOptions> = {
   maxHttpBufferSize: 1e7
+}
+
+enum SocketServerReceivingEvents {
+  CONNECTION = 'connection',
+  DISCONNECT = 'disconnect',
+  MESSAGE = 'message',
+  CALL = 'call',
+  REJECT_CALL = 'reject call',
+  SIGNAL = 'signal',
+  ANSWER = 'answer',
+  CANCEL_CALL = 'cancel call',
+  MUTED_AUDIO = 'mutedAudio',
+  MUTED_VIDEO = 'mutedVideo'
 }
 
 /**
@@ -33,36 +47,45 @@ export default function (
   SocketIO.use(socketSessionRecordLastActivity(presenceSystem))
 
   // SocketIO Events
-  SocketIO.on('connection', (socket) => {
+  SocketIO.on(SocketServerReceivingEvents.CONNECTION, (socket) => {
     sockEvents.onConnect(socket)
-    socket.on('disconnect', () => {
+
+    socket.on(SocketServerReceivingEvents.DISCONNECT, () => {
       sockEvents.onDisconnect(socket)
     })
+
     socket.on(
-      'message',
+      SocketServerReceivingEvents.MESSAGE,
       handleSocketEvent(async (data, callback) => {
         await sockEvents.onMessage(socket, data, callback, false)
       })
     )
-    socket.on('call', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.CALL, async (data, callback) => {
       await sockEvents.onCalling(socket, data, callback, SocketIO)
     })
-    socket.on('reject call', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.REJECT_CALL, async (data, callback) => {
       await sockEvents.onCallReject(socket, data, callback, SocketIO)
     })
-    socket.on('signal', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.SIGNAL, async (data, callback) => {
       await sockEvents.onOffer(socket, data, callback, SocketIO)
     })
-    socket.on('answer', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.ANSWER, async (data, callback) => {
       await sockEvents.onAnswer(socket, data, callback, SocketIO)
     })
-    socket.on('cancel call', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.CANCEL_CALL, async (data, callback) => {
       await sockEvents.onCallCancel(socket, data, callback, SocketIO)
     })
-    socket.on('mutedAudio', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.MUTED_AUDIO, async (data, callback) => {
       await sockEvents.onMutedAudio(socket, data, callback, SocketIO)
     })
-    socket.on('mutedVideo', async (data, callback) => {
+
+    socket.on(SocketServerReceivingEvents.MUTED_VIDEO, async (data, callback) => {
       await sockEvents.onMutedVideo(socket, data, callback, SocketIO)
     })
   })

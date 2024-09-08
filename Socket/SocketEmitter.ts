@@ -5,7 +5,7 @@ import type PresenceSystem from './PresenceSystem.js'
 import { emitEventToAllUserSessions } from '../utils/socket-utils.js'
 import type ConversationQuickView from '../middlewares/conversations/types.js'
 
-export enum SocketServerEvents {
+export enum SocketServerEmitEvents {
   newConversation = 'new conversation'
 }
 
@@ -26,7 +26,7 @@ export default class SocketServerEventEmitter {
       this.presenceSystem,
       this.socketServer,
       users,
-      SocketServerEvents.newConversation,
+      SocketServerEmitEvents.newConversation,
       data
     )
   }
