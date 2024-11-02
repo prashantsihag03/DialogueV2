@@ -80,8 +80,32 @@ More details on Database modelling for this project can be found [here](/dev/doc
 
 <br/>
 
-# Executing commands
+# Starting app locally
 
-See scripts in [package.json.](/package.json)
+Build project using:
+
+```
+npm run build
+```
+
+Run project in dev environment using:
+
+```
+npm run dev
+```
+
+Run project in prod environment using:
+
+```
+npm run start
+```
+
+Build again and run project in dev env using:
+
+```
+npm run br
+```
+
+See more execution commands in [package.json.](/package.json)
 
 <br/>

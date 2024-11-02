@@ -13,6 +13,7 @@
     "build": "rm -rf build/*; tsc -p ./tsconfig.json; cp -r public ./build/public; mkdir ./build/uploads",
     "start": "NODE_ENV=production node ./build/index.js",
     "dev": "NODE_ENV=development node -r dotenv/config ./build/index.js",
+    "br": "npm run build; npm run dev",
     "dbClean": "npm run purgeDynamodb && npm run setupDynamodb",
     "dockerfile": "npm run build; docker build -t dialogue-app-v2 .",
     "dockerClean": "cd ./dev/db; docker-compose down; docker rmi db-dialogue-v2-app:latest",
