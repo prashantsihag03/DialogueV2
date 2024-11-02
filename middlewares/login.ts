@@ -17,7 +17,7 @@ const loginCredSchema = z
     }),
     password: z.string({
       required_error: 'The password is mandatory',
-      invalid_type_error: 'The username must be a string'
+      invalid_type_error: 'The password must be a string'
     })
   })
   .required()
@@ -90,4 +90,14 @@ export const login = async (_req: Request, _res: Response): Promise<void> => {
     path: '/'
   })
   _res.redirect('/home')
+}
+
+/**
+ * Main Handler for user login.
+ * Generates session tokens and sets session cookie for the user.
+ * Assumes login credentials have been authenticated.
+ */
+export const loginMobile = async (_req: Request, _res: Response): Promise<void> => {
+  const tokens = await JwtUtils.generateJwtToken(_res.locals.authenticated)
+  _res.json(tokens).end()
 }
